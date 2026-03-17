@@ -1,65 +1,175 @@
-import Image from "next/image";
+import Link from "next/link";
+import { PageShell } from "@/components/layout/PageShell";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <PageShell
+      hero={
+        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+              Welcome Home
+            </p>
+            <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+              Know Jesus. Find community. Live on mission.
+            </h1>
+            <p className="max-w-xl text-sm text-zinc-200 sm:text-base">
+              Tabernacle of David Missons Church is a modern, Jesus-centered church in Your City.
+              We would love to help you plan your first visit and get connected.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/visit">
+                <Button variant="primary">Plan Your Visit</Button>
+              </Link>
+              <Link href="/sermons">
+                <Button variant="secondary">Watch a Message</Button>
+              </Link>
+            </div>
+          </div>
+          <div className="mt-6 w-full max-w-xs space-y-2 rounded-2xl bg-zinc-900/40 p-4 text-xs text-zinc-200 ring-1 ring-zinc-700/60 sm:mt-0">
+            <p className="font-semibold text-zinc-50">This Sunday</p>
+            <p>Sundays 9:00am & 11:00am</p>
+            <p>Given Lubinda Road, Lusaka.</p>
+            <p className="text-zinc-400">
+              Kids ministry is available at every service.
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <section className="grid gap-6 md:grid-cols-3">
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              This Week
+            </p>
+          }
+          footer={
+            <Link
+              href="/events"
+              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              View all events
+            </Link>
+          }
+        >
+          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            Upcoming gatherings & moments you can join.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <p>
+            Join us this Sunday for worship and teaching, plus our midweek
+            prayer night every Wednesday at 7:00pm.
+          </p>
+        </Card>
+
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Messages
+            </p>
+          }
+          footer={
+            <Link
+              href="/sermons"
+              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+            >
+              Browse sermons
+            </Link>
+          }
+        >
+          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            Catch up or share an encouraging word.
+          </p>
+          <p>
+            Watch or listen to recent sermons from our current teaching series
+            and share them with a friend.
+          </p>
+        </Card>
+
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Community
+            </p>
+          }
+          footer={
+            <Link
+              href="/groups"
+              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+            >
+              Explore groups
+            </Link>
+          }
+        >
+          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            Circles, not rows.
+          </p>
+          <p>
+            Find a small group where you can know others, be known, and grow in
+            your faith together.
+          </p>
+        </Card>
+      </section>
+
+      <section className="grid gap-6 md:grid-cols-[2fr,1.4fr]">
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Plan Your Visit
+            </p>
+          }
+          footer={
+            <Link
+              href="/visit"
+              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+            >
+              Tell us you&apos;re coming
+            </Link>
+          }
+          className="h-full"
+        >
+          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            We&apos;ll save you a seat.
+          </p>
+          <p className="mb-3">
+            Share a few details and our team will be ready to welcome you,
+            answer questions, and help with kids check-in and parking when you
+            arrive.
+          </p>
+          <ul className="list-disc space-y-1 pl-4 text-sm text-zinc-700 dark:text-zinc-300">
+            <li>Friendly hosts from the moment you pull in.</li>
+            <li>Safe, fun environments for children.</li>
+            <li>Services are about 70 minutes.</li>
+          </ul>
+        </Card>
+
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Give
+            </p>
+          }
+          footer={
+            <Link
+              href="/give"
+              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+            >
+              Give online
+            </Link>
+          }
+        >
+          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            Practice generosity.
+          </p>
+          <p>
+            Your generosity fuels the mission of Tabernacle of David Missons Church in our church, our
+            city, and around the world.
+          </p>
+        </Card>
+      </section>
+    </PageShell>
   );
 }
+
