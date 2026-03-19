@@ -54,6 +54,27 @@ function formatDateRange(startsAt: string, endsAt: string | null) {
 export default async function EventsPage() {
   const nowIso = new Date().toISOString();
 
+  if (!supabase) {
+    return (
+      <PageShell
+        hero={
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+              Events
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+              Upcoming gatherings at TOD.
+            </h1>
+          </div>
+        }
+      >
+        <p className="text-sm text-red-600 dark:text-red-300">
+          We weren&apos;t able to load events right now. Please try again later.
+        </p>
+      </PageShell>
+    );
+  }
+
   const { data, error } = await supabase
     .from("events")
     .select("*")

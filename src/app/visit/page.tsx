@@ -31,6 +31,10 @@ async function registerVisitor(formData: FormData) {
     ? Number.parseInt(numberOfChildrenRaw, 10)
     : null;
 
+  if (!supabase) {
+    redirect("/visit?error=save-failed");
+  }
+
   const { error } = await supabase.from("visitors").insert({
     first_name: firstName,
     last_name: lastName,

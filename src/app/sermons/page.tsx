@@ -15,6 +15,27 @@ type Sermon = {
 };
 
 export default async function SermonsPage() {
+  if (!supabase) {
+    return (
+      <PageShell
+        hero={
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+              Messages
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+              Watch or listen to recent sermons.
+            </h1>
+          </div>
+        }
+      >
+        <p className="text-sm text-red-600 dark:text-red-300">
+          We couldn&apos;t load sermons right now. Please try again later.
+        </p>
+      </PageShell>
+    );
+  }
+
   const { data, error } = await supabase
     .from("sermons")
     .select("*")

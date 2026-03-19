@@ -14,6 +14,27 @@ type Group = {
 };
 
 export default async function GroupsPage() {
+  if (!supabase) {
+    return (
+      <PageShell
+        hero={
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+              Groups
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+              Circles where you can belong.
+            </h1>
+          </div>
+        }
+      >
+        <p className="text-sm text-red-600 dark:text-red-300">
+          We couldn&apos;t load groups right now. Please try again later.
+        </p>
+      </PageShell>
+    );
+  }
+
   const { data, error } = await supabase
     .from("groups")
     .select("*")
