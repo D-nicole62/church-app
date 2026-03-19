@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 const GIVING_URL = "https://your-giving-provider.example.com/tod";
 
@@ -31,15 +30,16 @@ export default function GivePage() {
         <ul className="mb-4 space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
           <li>Give securely online (one-time or recurring).</li>
           <li>Give in person using the giving boxes during services.</li>
-          <li>Mail checks to Tabernacle of David Missons Church/ TOD, 123 Hope Street, Your City.</li>
+          <li>Mail checks to Tabernacle of David Missons Church, Given Lubinda Road, Lusaka.</li>
         </ul>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={() => window.open(GIVING_URL, "_blank")}
+        <Link
+          href={GIVING_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-50 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           Give online
-        </Button>
+        </Link>
       </Card>
 
       <Card>
