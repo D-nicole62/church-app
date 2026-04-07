@@ -59,10 +59,10 @@ export default async function EventsPage() {
       <PageShell
         hero={
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Events
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Upcoming gatherings at TOD.
             </h1>
           </div>
@@ -86,10 +86,10 @@ export default async function EventsPage() {
       <PageShell
         hero={
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Events
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Upcoming gatherings at TOD.
             </h1>
           </div>
@@ -111,13 +111,13 @@ export default async function EventsPage() {
     <PageShell
       hero={
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
             Events
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Upcoming gatherings at TOD.
           </h1>
-          <p className="max-w-2xl text-sm text-zinc-200 sm:text-base">
+          <p className="max-w-2xl text-sm text-white/85 sm:text-base">
             Worship services, classes, groups, and ways to serve—there&apos;s a
             next step for you.
           </p>
@@ -126,11 +126,11 @@ export default async function EventsPage() {
     >
       <section className="space-y-6">
         <div>
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Upcoming
           </h2>
           {upcoming.length === 0 ? (
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+            <p className="text-sm text-muted-foreground">
               There are no upcoming events scheduled right now. Check back soon
               or join us on Sunday.
             </p>
@@ -141,17 +141,17 @@ export default async function EventsPage() {
                   key={event.id}
                   header={
                     <div className="space-y-1">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         {formatDateRange(event.starts_at, event.ends_at)}
                       </p>
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                      <p className="text-sm font-medium text-foreground">
                         {event.title}
                       </p>
                     </div>
                   }
                   footer={
                     event.location && (
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-muted-foreground">
                         {event.location}
                       </p>
                     )
@@ -166,7 +166,7 @@ export default async function EventsPage() {
 
         {past.length > 0 && (
           <div>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Recent
             </h2>
             <div className="grid gap-3 md:grid-cols-2">
@@ -175,10 +175,10 @@ export default async function EventsPage() {
                   key={event.id}
                   header={
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-zinc-500">
+                      <p className="text-xs font-medium text-muted-foreground">
                         {formatDateRange(event.starts_at, event.ends_at)}
                       </p>
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                      <p className="text-sm font-medium text-foreground">
                         {event.title}
                       </p>
                     </div>

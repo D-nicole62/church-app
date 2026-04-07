@@ -9,13 +9,13 @@ export default function Home() {
       hero={
         <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Welcome Home
             </p>
-            <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+            <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Know Jesus. Find community. Live on mission.
             </h1>
-            <p className="max-w-xl text-sm text-zinc-200 sm:text-base">
+            <p className="max-w-xl text-sm text-white/85 sm:text-base">
               Tabernacle of David Missons Church is a modern, Jesus-centered church in Your City.
               We would love to help you plan your first visit and get connected.
             </p>
@@ -24,15 +24,20 @@ export default function Home() {
                 <Button variant="primary">Plan Your Visit</Button>
               </Link>
               <Link href="/sermons">
-                <Button variant="secondary">Watch a Message</Button>
+                <Button
+                  variant="ghost"
+                  className="border border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/15"
+                >
+                  Watch a Message
+                </Button>
               </Link>
             </div>
           </div>
-          <div className="mt-6 w-full max-w-xs space-y-2 rounded-2xl bg-zinc-900/40 p-4 text-xs text-zinc-200 ring-1 ring-zinc-700/60 sm:mt-0">
-            <p className="font-semibold text-zinc-50">This Sunday</p>
+          <div className="mt-6 w-full max-w-xs space-y-2 rounded-2xl border border-white/15 bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm sm:mt-0">
+            <p className="font-semibold text-white">This Sunday</p>
             <p>Sundays 9:00am & 11:00am</p>
             <p>Given Lubinda Road, Lusaka.</p>
-            <p className="text-zinc-400">
+            <p className="text-white/65">
               Kids ministry is available at every service.
             </p>
           </div>
@@ -42,20 +47,20 @@ export default function Home() {
       <section className="grid gap-6 md:grid-cols-3">
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               This Week
             </p>
           }
           footer={
             <Link
               href="/events"
-              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
               View all events
             </Link>
           }
         >
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             Upcoming gatherings & moments you can join.
           </p>
           <p>
@@ -66,20 +71,20 @@ export default function Home() {
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Messages
             </p>
           }
           footer={
             <Link
               href="/sermons"
-              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
               Browse sermons
             </Link>
           }
         >
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             Catch up or share an encouraging word.
           </p>
           <p>
@@ -90,20 +95,20 @@ export default function Home() {
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Community
             </p>
           }
           footer={
             <Link
               href="/groups"
-              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
               Explore groups
             </Link>
           }
         >
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             Circles, not rows.
           </p>
           <p>
@@ -116,21 +121,21 @@ export default function Home() {
       <section className="grid gap-6 md:grid-cols-[2fr,1.4fr]">
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Plan Your Visit
             </p>
           }
           footer={
             <Link
               href="/visit"
-              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
               Tell us you&apos;re coming
             </Link>
           }
           className="h-full"
         >
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             We&apos;ll save you a seat.
           </p>
           <p className="mb-3">
@@ -138,7 +143,7 @@ export default function Home() {
             answer questions, and help with kids check-in and parking when you
             arrive.
           </p>
-          <ul className="list-disc space-y-1 pl-4 text-sm text-zinc-700 dark:text-zinc-300">
+          <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
             <li>Friendly hosts from the moment you pull in.</li>
             <li>Safe, fun environments for children.</li>
             <li>Services are about 70 minutes.</li>
@@ -147,20 +152,20 @@ export default function Home() {
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Give
             </p>
           }
           footer={
             <Link
               href="/give"
-              className="text-xs font-medium text-zinc-600 underline-offset-4 hover:underline dark:text-zinc-300"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
               Give online
             </Link>
           }
         >
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             Practice generosity.
           </p>
           <p>

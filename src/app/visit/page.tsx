@@ -69,13 +69,13 @@ export default async function VisitPage(props: VisitPageProps) {
     <PageShell
       hero={
         <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
             Plan Your Visit
           </p>
-          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             We&apos;re saving a seat for you.
           </h1>
-          <p className="max-w-2xl text-sm text-zinc-200 sm:text-base">
+          <p className="max-w-2xl text-sm text-white/85 sm:text-base">
             Let us know when you&apos;re coming so our team can welcome you,
             help you check in kids, and answer any questions before you arrive.
           </p>
@@ -85,7 +85,7 @@ export default async function VisitPage(props: VisitPageProps) {
     >
       <Card
         header={
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Your details
           </p>
         }
@@ -107,13 +107,13 @@ export default async function VisitPage(props: VisitPageProps) {
         <form action={registerVisitor} className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 First name *
               </label>
               <Input name="firstName" autoComplete="given-name" required />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Last name *
               </label>
               <Input name="lastName" autoComplete="family-name" required />
@@ -122,7 +122,7 @@ export default async function VisitPage(props: VisitPageProps) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Email
               </label>
               <Input
@@ -133,7 +133,7 @@ export default async function VisitPage(props: VisitPageProps) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Mobile phone
               </label>
               <Input
@@ -147,12 +147,12 @@ export default async function VisitPage(props: VisitPageProps) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Which service are you planning to attend?
               </label>
               <select
                 name="serviceTime"
-                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <option value="">I&apos;m not sure yet</option>
                 <option value="9:00am">9:00am service</option>
@@ -160,15 +160,15 @@ export default async function VisitPage(props: VisitPageProps) {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Coming with kids?
               </label>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-700 dark:text-zinc-300">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <label className="inline-flex items-center gap-2">
                   <input
                     type="checkbox"
                     name="attendingWithChildren"
-                    className="h-3.5 w-3.5 rounded border-zinc-300 text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 dark:border-zinc-700"
+                    className="h-3.5 w-3.5 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   />
                   <span>Yes, we&apos;ll have kids with us</span>
                 </label>
@@ -187,7 +187,7 @@ export default async function VisitPage(props: VisitPageProps) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 How did you hear about Tabernacle of David Missions Church?
               </label>
               <Input
@@ -198,7 +198,7 @@ export default async function VisitPage(props: VisitPageProps) {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+            <label className="mb-1 block text-xs font-medium text-foreground/80">
               Anything we should know to make your visit great?
             </label>
             <Textarea
@@ -216,12 +216,12 @@ export default async function VisitPage(props: VisitPageProps) {
       <div className="space-y-4">
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               What to expect
             </p>
           }
         >
-          <ul className="space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+          <ul className="space-y-2 text-sm text-muted-foreground">
             <li>Services are about 70 minutes with music and teaching.</li>
             <li>
               Come as you are—most people dress casually and comfortably.
@@ -235,12 +235,12 @@ export default async function VisitPage(props: VisitPageProps) {
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Location & parking
             </p>
           }
         >
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">
+          <p className="text-sm text-muted-foreground">
             We&apos;re located at Given Lubinda Road, Lusaka. Guest parking is
             available near the main entrance and clearly marked when you
             arrive.

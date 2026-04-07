@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
+import { FACEBOOK_URL, YOUTUBE_URL } from "@/lib/site";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,10 +11,10 @@ export default function ContactPage() {
     <PageShell
       hero={
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
             Contact
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             We&apos;d love to hear from you.
           </h1>
         </div>
@@ -21,7 +22,7 @@ export default function ContactPage() {
       className="grid gap-8 md:grid-cols-[minmax(0,1.6fr),minmax(0,1.4fr)]"
     >
       <Card>
-        <p className="mb-3 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+        <p className="mb-3 text-sm font-medium text-foreground">
           Send us a message
         </p>
         <form
@@ -32,20 +33,20 @@ export default function ContactPage() {
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Name
               </label>
               <Input name="name" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Email
               </label>
               <Input type="email" name="email" />
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-200">
+            <label className="mb-1 block text-xs font-medium text-foreground/80">
               Message
             </label>
             <Textarea name="message" />
@@ -56,36 +57,36 @@ export default function ContactPage() {
 
       <div className="space-y-4">
         <Card>
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             Visit us
           </p>
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">
-            123 Hope Street
+          <p className="text-sm text-muted-foreground">
+            Given Lubinda Road
             <br />
-            Your City, ST 00000
+            Lusaka
           </p>
-          <p className="mt-2 text-xs text-zinc-500">
+          <p className="mt-2 text-xs text-muted-foreground">
             Sundays at 9:00am &amp; 11:00am
           </p>
           <Link
             href="https://maps.google.com"
             target="_blank"
-            className="mt-3 inline-block text-xs font-medium text-zinc-700 underline-offset-4 hover:underline dark:text-zinc-200"
+            className="mt-3 inline-block text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
             Open in Google Maps
           </Link>
         </Card>
 
         <Card>
-          <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+          <p className="mb-2 text-sm font-medium text-foreground">
             Other ways to connect
           </p>
-          <ul className="space-y-1 text-sm text-zinc-700 dark:text-zinc-300">
+          <ul className="space-y-1 text-sm text-muted-foreground">
             <li>
               Email:{" "}
               <Link
                 href="mailto:TOD@gmail.com"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4 hover:opacity-90"
               >
                 TOD@gmail.com
               </Link>
@@ -94,9 +95,31 @@ export default function ContactPage() {
               Phone:{" "}
               <Link
                 href="tel:+260971794359"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4 hover:opacity-90"
               >
                 +260971794359
+              </Link>
+            </li>
+            <li>
+              Facebook:{" "}
+              <Link
+                href={FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4 hover:opacity-90"
+              >
+                Follow us on Facebook
+              </Link>
+            </li>
+            <li>
+              YouTube:{" "}
+              <Link
+                href={YOUTUBE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4 hover:opacity-90"
+              >
+                Watch on YouTube
               </Link>
             </li>
           </ul>

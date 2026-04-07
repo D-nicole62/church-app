@@ -20,10 +20,10 @@ export default async function SermonsPage() {
       <PageShell
         hero={
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Messages
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Watch or listen to recent sermons.
             </h1>
           </div>
@@ -47,10 +47,10 @@ export default async function SermonsPage() {
       <PageShell
         hero={
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Messages
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Watch or listen to recent sermons.
             </h1>
           </div>
@@ -69,20 +69,20 @@ export default async function SermonsPage() {
     <PageShell
       hero={
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
             Messages
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Watch or listen to recent sermons.
           </h1>
-          <p className="max-w-2xl text-sm text-zinc-200 sm:text-base">
+          <p className="max-w-2xl text-sm text-white/85 sm:text-base">
             Be encouraged and strengthened by teaching from God&apos;s Word.
           </p>
         </div>
       }
     >
       {sermons.length === 0 ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        <p className="text-sm text-muted-foreground">
           Sermons will appear here once they&apos;re published.
         </p>
       ) : (
@@ -92,18 +92,18 @@ export default async function SermonsPage() {
               key={sermon.id}
               header={
                 <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     {new Date(sermon.date).toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
                     })}
                   </p>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                  <p className="text-sm font-medium text-foreground">
                     {sermon.title}
                   </p>
                   {sermon.series && (
-                    <p className="text-xs text-zinc-500">{sermon.series}</p>
+                    <p className="text-xs text-muted-foreground">{sermon.series}</p>
                   )}
                 </div>
               }
@@ -113,7 +113,7 @@ export default async function SermonsPage() {
                     <Link
                       href={sermon.youtube_url}
                       target="_blank"
-                      className="text-xs font-medium text-zinc-700 underline-offset-4 hover:underline dark:text-zinc-200"
+                      className="text-xs font-medium text-primary underline-offset-4 hover:underline"
                     >
                       Watch
                     </Link>
@@ -122,7 +122,7 @@ export default async function SermonsPage() {
                     <Link
                       href={sermon.audio_url}
                       target="_blank"
-                      className="text-xs font-medium text-zinc-700 underline-offset-4 hover:underline dark:text-zinc-200"
+                      className="text-xs font-medium text-primary underline-offset-4 hover:underline"
                     >
                       Listen
                     </Link>
@@ -134,7 +134,7 @@ export default async function SermonsPage() {
                 {sermon.description}
               </p>
               {sermon.speaker && (
-                <p className="mt-3 text-xs text-zinc-500">
+                <p className="mt-3 text-xs text-muted-foreground">
                   Taught by {sermon.speaker}
                 </p>
               )}
