@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="g3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#5a3698;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#241b3a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g3)"/>
+  <text x="400" y="290" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-family="system-ui,sans-serif" font-size="22" font-weight="600">Placeholder image 3</text>
+  <text x="400" y="330" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="system-ui,sans-serif" font-size="14">Replace with church photo</text>
+</svg>

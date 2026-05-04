@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroSlideshow } from "@/components/home/HeroSlideshow";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,8 +8,8 @@ export default function Home() {
   return (
     <PageShell
       hero={
-        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-4">
+        <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-stretch lg:justify-between">
+          <div className="space-y-4 lg:max-w-xl lg:shrink-0">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Welcome Home
             </p>
@@ -33,13 +34,16 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="mt-6 w-full max-w-xs space-y-2 rounded-2xl border border-white/15 bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm sm:mt-0">
-            <p className="font-semibold text-white">This Sunday</p>
-            <p>Sundays 9:00am & 11:00am</p>
-            <p>Given Lubinda Road, Lusaka.</p>
-            <p className="text-white/65">
-              Kids ministry is available at every service.
-            </p>
+          <div className="flex w-full min-w-0 flex-col gap-4 sm:max-w-md lg:max-w-lg lg:flex-1">
+            <HeroSlideshow />
+            <div className="space-y-2 rounded-2xl border border-white/15 bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm">
+              <p className="font-semibold text-white">This Sunday</p>
+              <p>Sundays 9:00am & 11:00am</p>
+              <p>Given Lubinda Road, Lusaka.</p>
+              <p className="text-white/65">
+                Kids ministry is available at every service.
+              </p>
+            </div>
           </div>
         </div>
       }
