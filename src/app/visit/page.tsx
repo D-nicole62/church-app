@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CHURCH_NAME, CONTACT, SERVICE_TIMES } from "@/lib/site";
 import { supabase } from "@/lib/supabase";
 
 async function registerVisitor(formData: FormData) {
@@ -155,8 +156,11 @@ export default async function VisitPage(props: VisitPageProps) {
                 className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <option value="">I&apos;m not sure yet</option>
-                <option value="9:00am">9:00am service</option>
-                <option value="11:00am">11:00am service</option>
+                {SERVICE_TIMES.map((service) => (
+                  <option key={service.id} value={service.time}>
+                    {service.label} ({service.time})
+                  </option>
+                ))}
               </select>
             </div>
             <div className="space-y-2">
@@ -188,7 +192,7 @@ export default async function VisitPage(props: VisitPageProps) {
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground/80">
-                How did you hear about Tabernacle of David Missions Church?
+                How did you hear about {CHURCH_NAME}?
               </label>
               <Input
                 name="howDidYouHear"
@@ -222,13 +226,25 @@ export default async function VisitPage(props: VisitPageProps) {
           }
         >
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>Services are about 70 minutes with music and teaching.</li>
+            <li>
+              Sunday services: First (07:00–08:30), Second (09:00–10:30), and
+              Youth — Potter&apos;s Wheel (11:00–12:30).
+            </li>
             <li>
               Come as you are—most people dress casually and comfortably.
             </li>
             <li>
-              TOD Kids is a safe, fun environment for children from birth
-              through 5th grade.
+              Children&apos;s Church is available during Sunday services—see our{" "}
+              <a
+                href="/children"
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Children&apos;s Church
+              </a>{" "}
+              page for more.
+            </li>
+            <li>
+              Potter&apos;s Wheel youth service meets Sundays 11:00–12:30.
             </li>
           </ul>
         </Card>
@@ -241,9 +257,8 @@ export default async function VisitPage(props: VisitPageProps) {
           }
         >
           <p className="text-sm text-muted-foreground">
-            We&apos;re located at Given Lubinda Road, Lusaka. Guest parking is
-            available near the main entrance and clearly marked when you
-            arrive.
+            {CONTACT.address}, {CONTACT.city}. Guest parking is available near
+            the main entrance when you arrive.
           </p>
         </Card>
       </div>

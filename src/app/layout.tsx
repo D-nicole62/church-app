@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CHURCH_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tabernacle of David Missons Church",
-  description:
-    "A modern church home for you to know Jesus, find community, and make a difference.",
+  title: CHURCH_NAME,
+  description: SITE_DESCRIPTION,
+  icons: {
+    icon: "/tod-logo.png",
+    apple: "/tod-logo.png",
+  },
 };
 
 export default function RootLayout({

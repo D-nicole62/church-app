@@ -1,42 +1,52 @@
 @import "tailwindcss";
 
+/* Brand purple: RGB 84 42 124 (#542A7C) · CMYK 85 100 16 13 */
+/* Brand green: RGB 10 175 55 (#0AAF37) · CMYK 20 29 100 0 — growth / secondary accents */
 :root {
-  --background: #f8f7fb;
-  --foreground: #1f1a2b;
+  --background: #f8f6fc;
+  --foreground: #1a1228;
   --card: #ffffff;
-  --card-foreground: #1f1a2b;
-  --muted: #f1edf8;
-  --muted-foreground: #6f6684;
-  --border: #e3dcf1;
-  --primary: #4f2d87;
-  --primary-hover: #432672;
+  --card-foreground: #1a1228;
+  --muted: #f1ecf9;
+  --muted-foreground: #5c4f72;
+  --border: #e4dcf2;
+  --primary: #542a7c;
+  --primary-hover: #452266;
   --primary-foreground: #ffffff;
   --accent: #b89452;
   --accent-foreground: #2c210e;
-  --ring: #6f45b5;
-  --hero-from: #301c58;
-  --hero-via: #4f2d87;
-  --hero-to: #6b3faf;
+  --ring: #7a4da3;
+  --hero-from: #2d1645;
+  --hero-via: #542a7c;
+  --hero-to: #6e4393;
+  --brand-green: #0aaf37;
+  --brand-green-hover: #088f2d;
+  --brand-green-foreground: #ffffff;
+  --brand-green-muted: #e6f9ec;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #120d1f;
-    --foreground: #f6f1ff;
-    --card: #19132a;
-    --card-foreground: #f6f1ff;
-    --muted: #241b3a;
-    --muted-foreground: #b6abc9;
-    --border: #2a2143;
-    --primary: #b99dff;
-    --primary-hover: #ccb6ff;
-    --primary-foreground: #1f1240;
+    --background: #100a18;
+    --foreground: #f4f0fb;
+    --card: #1a1228;
+    --card-foreground: #f4f0fb;
+    --muted: #241a35;
+    --muted-foreground: #b8abc9;
+    --border: #322648;
+    --primary: #c9a8eb;
+    --primary-hover: #dcc2f5;
+    --primary-foreground: #1a0f28;
     --accent: #e3c98d;
     --accent-foreground: #2d220c;
-    --ring: #b99dff;
-    --hero-from: #120a27;
-    --hero-via: #3f246f;
-    --hero-to: #5a3698;
+    --ring: #c9a8eb;
+    --hero-from: #0f0818;
+    --hero-via: #3d1f5c;
+    --hero-to: #542a7c;
+    --brand-green: #2bd65a;
+    --brand-green-hover: #0aaf37;
+    --brand-green-foreground: #ffffff;
+    --brand-green-muted: #143222;
   }
 }
 
@@ -56,6 +66,10 @@
   --color-hero-from: var(--hero-from);
   --color-hero-via: var(--hero-via);
   --color-hero-to: var(--hero-to);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-hover: var(--brand-green-hover);
+  --color-brand-green-foreground: var(--brand-green-foreground);
+  --color-brand-green-muted: var(--brand-green-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

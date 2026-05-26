@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
-import { FACEBOOK_URL, YOUTUBE_URL } from "@/lib/site";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { CONTACT, FACEBOOK_URL, SERVICE_TIMES, YOUTUBE_URL } from "@/lib/site";
 
 export default function ContactPage() {
   return (
@@ -15,7 +15,7 @@ export default function ContactPage() {
             Contact
           </p>
           <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            We&apos;d love to hear from you.
+            We&apos;d love to hear from you
           </h1>
         </div>
       }
@@ -27,7 +27,7 @@ export default function ContactPage() {
         </p>
         <form
           className="space-y-3"
-          action="mailto:TOD@gamil.com"
+          action={`mailto:${CONTACT.email}`}
           method="post"
           encType="text/plain"
         >
@@ -57,20 +57,27 @@ export default function ContactPage() {
 
       <div className="space-y-4">
         <Card>
-          <p className="mb-2 text-sm font-medium text-foreground">
-            Visit us
-          </p>
+          <p className="mb-2 text-sm font-medium text-foreground">Visit us</p>
           <p className="text-sm text-muted-foreground">
-            Given Lubinda Road
+            {CONTACT.address}
             <br />
-            Lusaka
+            {CONTACT.city}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Sundays at 9:00am &amp; 11:00am
+          <p className="mt-2 text-xs text-muted-foreground">{CONTACT.postal}</p>
+          <p className="mt-3 text-xs font-medium text-foreground">
+            Sunday services
           </p>
+          <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+            {SERVICE_TIMES.map((service) => (
+              <li key={service.id}>
+                {service.label}: {service.time}
+              </li>
+            ))}
+          </ul>
           <Link
-            href="https://maps.google.com"
+            href="https://maps.google.com/?q=Given+Lubinda+Road+Lusaka"
             target="_blank"
+            rel="noopener noreferrer"
             className="mt-3 inline-block text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
             Open in Google Maps
@@ -79,25 +86,30 @@ export default function ContactPage() {
 
         <Card>
           <p className="mb-2 text-sm font-medium text-foreground">
-            Other ways to connect
+            Contact details
           </p>
-          <ul className="space-y-1 text-sm text-muted-foreground">
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>
+              Call:{" "}
+              {CONTACT.phones.map((phone, index) => (
+                <span key={phone.tel}>
+                  {index > 0 && " / "}
+                  <Link
+                    href={`tel:${phone.tel}`}
+                    className="text-primary underline underline-offset-4 hover:opacity-90"
+                  >
+                    {phone.display}
+                  </Link>
+                </span>
+              ))}
+            </li>
             <li>
               Email:{" "}
               <Link
-                href="mailto:TOD@gmail.com"
+                href={`mailto:${CONTACT.email}`}
                 className="text-primary underline underline-offset-4 hover:opacity-90"
               >
-                TOD@gmail.com
-              </Link>
-            </li>
-            <li>
-              Phone:{" "}
-              <Link
-                href="tel:+260971794359"
-                className="text-primary underline underline-offset-4 hover:opacity-90"
-              >
-                +260971794359
+                {CONTACT.email}
               </Link>
             </li>
             <li>
@@ -108,7 +120,7 @@ export default function ContactPage() {
                 rel="noopener noreferrer"
                 className="text-primary underline underline-offset-4 hover:opacity-90"
               >
-                Follow us on Facebook
+                facebook.com/todassembly
               </Link>
             </li>
             <li>
@@ -128,4 +140,3 @@ export default function ContactPage() {
     </PageShell>
   );
 }
-

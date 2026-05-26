@@ -3,10 +3,15 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { heroSlides } from "@/lib/hero-slides";
+import { cn } from "@/lib/utils";
 
 const INTERVAL_MS = 6000;
 
-export function HeroSlideshow() {
+type HeroSlideshowProps = {
+  className?: string;
+};
+
+export function HeroSlideshow({ className }: HeroSlideshowProps) {
   const [index, setIndex] = useState(0);
   const count = heroSlides.length;
 
@@ -28,8 +33,13 @@ export function HeroSlideshow() {
   if (count === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-white/20 bg-black/20 shadow-lg shadow-black/20">
-      <div className="relative aspect-[4/3] w-full sm:aspect-video">
+    <div
+      className={cn(
+        "relative flex h-full min-h-[18rem] w-full flex-1 overflow-hidden rounded-2xl border border-white/20 bg-black/20 shadow-lg shadow-black/20 sm:min-h-[20rem] lg:min-h-0",
+        className,
+      )}
+    >
+      <div className="relative min-h-[18rem] w-full flex-1 sm:min-h-[20rem] lg:absolute lg:inset-0 lg:min-h-0">
         {heroSlides.map((slide, i) => (
           <div
             key={slide.src}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
+import { CHURCH_NAME, CONTACT } from "@/lib/site";
 
 const GIVING_URL = "https://your-giving-provider.example.com/tod";
 
@@ -30,7 +31,9 @@ export default function GivePage() {
         <ul className="mb-4 space-y-2 text-sm text-muted-foreground">
           <li>Give securely online (one-time or recurring).</li>
           <li>Give in person using the giving boxes during services.</li>
-          <li>Mail checks to Tabernacle of David Missons Church, Given Lubinda Road, Lusaka.</li>
+          <li>
+            Mail checks to {CHURCH_NAME}, {CONTACT.address}, {CONTACT.city}.
+          </li>
         </ul>
         <Link
           href={GIVING_URL}
@@ -55,7 +58,7 @@ export default function GivePage() {
           All gifts are tax-deductible as allowed by law. If you have questions
           about giving,{" "}
           <Link
-            href="mailto:finance@tod.com"
+            href={`mailto:${CONTACT.email}`}
             className="text-primary underline underline-offset-4 hover:opacity-90"
           >
             contact our team

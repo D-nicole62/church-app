@@ -1,5 +1,15 @@
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
+import { PhotoGrid } from "@/components/ui/photo-grid";
+import { aboutGalleryPhotos } from "@/lib/church-photos";
+import {
+  AFFILIATION,
+  CHURCH_NAME,
+  LAUNCHED_DATE,
+  MISSION,
+  VISION,
+  WHO_WE_ARE,
+} from "@/lib/site";
 
 export default function AboutPage() {
   return (
@@ -7,42 +17,54 @@ export default function AboutPage() {
       hero={
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
-            About
+            Who we are
           </p>
           <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            A modern church to help people know Jesus and find community.
+            {CHURCH_NAME}
           </h1>
+          <p className="max-w-2xl text-sm text-white/85 sm:text-base">
+            A Pentecostal, cell-based ministry under the {AFFILIATION}.
+          </p>
         </div>
       }
-      className="grid gap-8 md:grid-cols-[minmax(0,1.7fr),minmax(0,1.3fr)]"
+      className="grid gap-8"
     >
       <Card>
-        <p className="mb-3 text-sm font-medium text-foreground">
-          Who we are
-        </p>
-        <p className="mb-3 text-sm text-muted-foreground">
-          Tabernacle Of David City Missions Church is a mission based church that prioritizes missions and spreading the gospel.
-          We gather on Sundays to worship together and scatter throughout the
-          week in homes and across our city.
-        </p>
-        <p className="mb-3 text-sm text-muted-foreground">
-          However you&apos;re exploring faith—whether you&apos;re new to
-          church, coming back after some time away, or have been following
-          Jesus for years—you are welcome here.
+        <p className="mb-3 text-sm font-medium text-foreground">Who we are</p>
+        {WHO_WE_ARE.map((paragraph) => (
+          <p
+            key={paragraph.slice(0, 40)}
+            className="mb-3 text-sm text-muted-foreground last:mb-0"
+          >
+            {paragraph}
+          </p>
+        ))}
+        <p className="mt-4 text-xs text-muted-foreground">
+          Officially launched on {LAUNCHED_DATE}.
         </p>
       </Card>
 
-      <Card>
-        <p className="mb-3 text-sm font-medium text-foreground">
-          What we believe
-        </p>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>Jesus is the center of everything we do.</li>
-          <li>The Bible is God&apos;s Word and our guide for life.</li>
-          <li>We are called to be a people of grace, truth, and love.</li>
-        </ul>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <p className="mb-3 text-sm font-medium text-foreground">Our vision</p>
+          <p className="text-sm text-muted-foreground">{VISION}</p>
+        </Card>
+
+        <Card>
+          <p className="mb-3 text-sm font-medium text-foreground">Our mission</p>
+          <p className="text-sm text-muted-foreground">{MISSION}</p>
+        </Card>
+      </div>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Life at TOD</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Worship, community, and ministry across our church family.
+          </p>
+        </div>
+        <PhotoGrid photos={aboutGalleryPhotos} />
+      </section>
     </PageShell>
   );
 }
-
