@@ -7,6 +7,7 @@ import {
   CHURCH_NAME,
   LAUNCHED_DATE,
   MISSION,
+  SENIOR_PASTOR,
   VISION,
   WHO_WE_ARE,
 } from "@/lib/site";
@@ -42,6 +43,13 @@ export default function AboutPage() {
         <p className="mt-4 text-xs text-muted-foreground">
           Officially launched on {LAUNCHED_DATE}.
         </p>
+        <div className="mt-5 border-t border-border pt-4">
+          <p className="text-sm font-semibold text-foreground">
+            {SENIOR_PASTOR.name}
+          </p>
+          <p className="text-xs text-muted-foreground">{SENIOR_PASTOR.title}</p>
+          <p className="text-xs text-muted-foreground">{CHURCH_NAME}</p>
+        </div>
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">

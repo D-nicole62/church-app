@@ -89,7 +89,6 @@ export default function Home() {
             <p className="text-xs text-muted-foreground">
               {SENIOR_PASTOR.title}
             </p>
-            <p className="text-xs text-muted-foreground">{CHURCH_NAME}</p>
           </div>
         </div>
       </section>

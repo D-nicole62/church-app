@@ -32,12 +32,12 @@ export function PageShell({ hero, className, children }: PageShellProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-card to-muted text-foreground">
       <header className="border-b border-border bg-card/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-1 py-2 sm:px-6">
           <Link
             href="/"
-            className="flex min-w-0 items-center gap-2.5 rounded-lg outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring sm:gap-3"
+            className="flex min-w-0 items-center gap-1 rounded-lg outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring sm:gap-3"
           >
-            <ChurchLogo variant="header" priority />
+            <ChurchLogo variant="header" priority className="-ml-4 sm:-ml-2" />
             <span className="hidden max-w-[14rem] text-[11px] leading-snug text-muted-foreground xl:inline">
               A perfect place for imperfect people to meet a perfect Christ
             </span>
@@ -74,10 +74,10 @@ export function PageShell({ hero, className, children }: PageShellProps) {
       </main>
 
       <footer className="border-t border-border bg-card py-8 text-xs text-muted-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-1 sm:px-6">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2.5">
-              <ChurchLogo variant="footer" />
+              <ChurchLogo variant="footer" className="-ml-4 sm:-ml-2" />
               <p className="max-w-[11rem] text-[11px] font-medium leading-snug text-foreground sm:max-w-xs sm:text-xs">
                 {CHURCH_NAME}
               </p>

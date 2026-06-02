@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   title: CHURCH_NAME,
   description: SITE_DESCRIPTION,
   icons: {
-    icon: "/tod-logo.png",
-    apple: "/tod-logo.png",
+    icon: "/tod-logo-transparent.png",
+    apple: "/tod-logo-transparent.png",
   },
 };
 

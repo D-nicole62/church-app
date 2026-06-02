@@ -20,20 +20,19 @@ export function ChurchLogo({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-md bg-[#0f0a18] ring-1 ring-black/15",
-        isHeader ? "px-2 py-1" : "px-1.5 py-1",
+        "inline-flex shrink-0 items-center justify-center",
         className,
       )}
     >
       <Image
-        src="/tod-logo.png"
+        src="/tod-logo-transparent.png"
         alt={isHeader ? LOGO_ALT : ""}
-        width={320}
-        height={72}
+        width={520}
+        height={120}
         priority={priority}
         className={cn(
-          "w-auto object-contain object-center",
-          isHeader ? "h-7 sm:h-8" : "h-6 sm:h-7",
+          "w-auto object-contain object-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.18)]",
+          isHeader ? "h-11 sm:h-12" : "h-9 sm:h-10",
         )}
       />
     </span>
