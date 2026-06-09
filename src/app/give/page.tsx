@@ -1,9 +1,8 @@
 import Link from "next/link";
+import { GivingForm } from "@/components/giving/GivingForm";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { CHURCH_NAME, CONTACT } from "@/lib/site";
-
-const GIVING_URL = "https://your-giving-provider.example.com/tod";
 
 export default function GivePage() {
   return (
@@ -22,51 +21,66 @@ export default function GivePage() {
           </p>
         </div>
       }
-      className="grid gap-8 md:grid-cols-[minmax(0,1.6fr),minmax(0,1.4fr)]"
+      className="grid gap-8 md:grid-cols-[minmax(0,1.7fr),minmax(0,1.3fr)]"
     >
-      <Card>
-        <p className="mb-3 text-sm font-medium text-foreground">
-          Ways to give
+      <Card
+        header={
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Give online
+          </p>
+        }
+      >
+        <p className="mb-2 text-sm font-medium text-foreground">
+          Give securely with Mobile Money or Card
         </p>
-        <ul className="mb-4 space-y-2 text-sm text-muted-foreground">
-          <li>Give securely online (one-time or recurring).</li>
-          <li>Give in person using the giving boxes during services.</li>
-          <li>
-            Mail checks to {CHURCH_NAME}, {CONTACT.address}, {CONTACT.city}.
-          </li>
-        </ul>
-        <Link
-          href={GIVING_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          Give online
-        </Link>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Powered by Lipila. Mobile Money sends a prompt to your phone to
+          approve. Card payments use a secure hosted page—we never store your
+          card details.
+        </p>
+        <GivingForm />
       </Card>
 
-      <Card>
-        <p className="mb-3 text-sm font-medium text-foreground">
-          Why we give
-        </p>
-        <p className="mb-2 text-sm text-muted-foreground">
-          We believe generosity is our joyful response to the generosity of
-          Jesus. Your giving fuels ministry to kids and students, supports
-          outreach in our city, and advances the gospel around the world.
-        </p>
-        <p className="text-xs text-muted-foreground">
-          All gifts are tax-deductible as allowed by law. If you have questions
-          about giving,{" "}
-          <Link
-            href={`mailto:${CONTACT.email}`}
-            className="text-primary underline underline-offset-4 hover:opacity-90"
-          >
-            contact our team
-          </Link>
-          .
-        </p>
-      </Card>
+      <div className="space-y-4">
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Other ways to give
+            </p>
+          }
+        >
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>Give in person using the giving boxes during services.</li>
+            <li>
+              Mail checks to {CHURCH_NAME}, {CONTACT.address}, {CONTACT.city}.
+            </li>
+          </ul>
+        </Card>
+
+        <Card
+          header={
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Why we give
+            </p>
+          }
+        >
+          <p className="mb-2 text-sm text-muted-foreground">
+            We believe generosity is our joyful response to the generosity of
+            Jesus. Your giving fuels ministry to kids and students, supports
+            outreach in our city, and advances the gospel around the world.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            If you have questions about giving,{" "}
+            <Link
+              href={`mailto:${CONTACT.email}`}
+              className="text-primary underline underline-offset-4 hover:opacity-90"
+            >
+              contact our team
+            </Link>
+            .
+          </p>
+        </Card>
+      </div>
     </PageShell>
   );
 }
-
