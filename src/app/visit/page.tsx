@@ -1,61 +1,13 @@
-import { redirect } from "next/navigation";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { GroupType } from "@/generated/prisma/client";
 import { CHURCH_NAME, CONTACT, SERVICE_TIMES } from "@/lib/site";
-import { supabase } from "@/lib/supabase";
-
-async function registerVisitor(formData: FormData) {
-  "use server";
-
-  const firstName = (formData.get("firstName") || "").toString().trim();
-  const lastName = (formData.get("lastName") || "").toString().trim();
-  const email = (formData.get("email") || "").toString().trim();
-  const phone = (formData.get("phone") || "").toString().trim();
-  const serviceTime = (formData.get("serviceTime") || "").toString().trim();
-  const attendingWithChildren = formData.get("attendingWithChildren") === "on";
-  const numberOfChildrenRaw = (formData.get("numberOfChildren") || "")
-    .toString()
-    .trim();
-  const howDidYouHear = (formData.get("howDidYouHear") || "")
-    .toString()
-    .trim();
-  const notes = (formData.get("notes") || "").toString().trim();
-
-  if (!firstName || !lastName || (!email && !phone)) {
-    redirect("/visit?error=missing-required");
-  }
-
-  const numberOfChildren = numberOfChildrenRaw
-    ? Number.parseInt(numberOfChildrenRaw, 10)
-    : null;
-
-  if (!supabase) {
-    redirect("/visit?error=save-failed");
-  }
-
-  const { error } = await supabase.from("visitors").insert({
-    first_name: firstName,
-    last_name: lastName,
-    email: email || null,
-    phone: phone || null,
-    service_time: serviceTime || null,
-    attending_with_children: attendingWithChildren,
-    number_of_children: Number.isNaN(numberOfChildren)
-      ? null
-      : numberOfChildren,
-    how_did_you_hear: howDidYouHear || null,
-    notes: notes || null,
-  });
-
-  if (error) {
-    redirect("/visit?error=save-failed");
-  }
-
-  redirect("/visit?success=1");
-}
+import { queryDatabase } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
+import { registerVisitorAction } from "@/lib/visitors/actions";
 
 type VisitPageProps = {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -65,6 +17,20 @@ export default async function VisitPage(props: VisitPageProps) {
   const searchParams = await props.searchParams;
   const success = searchParams?.success === "1";
   const error = typeof searchParams?.error === "string" ? searchParams.error : null;
+
+  const { campuses, ministries } = await queryDatabase(
+    async () => {
+      const [campuses, ministries] = await Promise.all([
+        prisma.campus.findMany({ orderBy: { name: "asc" } }),
+        prisma.group.findMany({
+          where: { type: GroupType.MINISTRY },
+          orderBy: { name: "asc" },
+        }),
+      ]);
+      return { campuses, ministries };
+    },
+    { campuses: [], ministries: [] },
+  );
 
   return (
     <PageShell
@@ -105,7 +71,7 @@ export default async function VisitPage(props: VisitPageProps) {
           </div>
         )}
 
-        <form action={registerVisitor} className="space-y-4">
+        <form action={registerVisitorAction} className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground/80">
@@ -140,9 +106,56 @@ export default async function VisitPage(props: VisitPageProps) {
               <Input
                 type="tel"
                 name="phone"
-                placeholder="(555) 555-0123"
+                placeholder="0977 000000"
                 autoComplete="tel"
               />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
+                Gender
+              </label>
+              <select
+                name="gender"
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <option value="">Prefer not to say</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
+                Date of birth
+              </label>
+              <Input type="date" name="dateOfBirth" />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
+                Residential area
+              </label>
+              <Input name="residentialArea" placeholder="e.g. Woodlands" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
+                Campus
+              </label>
+              <select
+                name="campusId"
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <option value="">Select campus</option>
+                {campuses.map((campus) => (
+                  <option key={campus.id} value={campus.id}>
+                    {campus.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -163,28 +176,35 @@ export default async function VisitPage(props: VisitPageProps) {
                 ))}
               </select>
             </div>
-            <div className="space-y-2">
+            <div>
               <label className="mb-1 block text-xs font-medium text-foreground/80">
-                Coming with kids?
+                Invited by
               </label>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="attendingWithChildren"
-                    className="h-3.5 w-3.5 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  />
-                  <span>Yes, we&apos;ll have kids with us</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <span>Number of children</span>
-                  <Input
-                    type="number"
-                    name="numberOfChildren"
-                    min={0}
-                    className="h-8 w-20 px-2 text-xs"
-                  />
-                </div>
+              <Input name="invitedBy" placeholder="Friend, family member..." />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="mb-1 block text-xs font-medium text-foreground/80">
+              Coming with kids?
+            </label>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="attendingWithChildren"
+                  className="h-3.5 w-3.5 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                />
+                <span>Yes, we&apos;ll have kids with us</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <span>Number of children</span>
+                <Input
+                  type="number"
+                  name="numberOfChildren"
+                  min={0}
+                  className="h-8 w-20 px-2 text-xs"
+                />
               </div>
             </div>
           </div>
@@ -199,6 +219,32 @@ export default async function VisitPage(props: VisitPageProps) {
                 placeholder="Friend, social media, drove by..."
               />
             </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
+                Interested ministry
+              </label>
+              <select
+                name="interestedMinistry"
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <option value="">Not sure yet</option>
+                {ministries.map((ministry) => (
+                  <option key={ministry.id} value={ministry.name}>
+                    {ministry.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground/80">
+              Prayer request
+            </label>
+            <Textarea
+              name="prayerRequest"
+              placeholder="Optional prayer request for our pastoral team"
+            />
           </div>
 
           <div>
@@ -265,4 +311,3 @@ export default async function VisitPage(props: VisitPageProps) {
     </PageShell>
   );
 }
-

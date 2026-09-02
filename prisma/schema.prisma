@@ -1,0 +1,352 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CAMPUS_ADMIN
+  FINANCE_OFFICER
+  CELL_GROUP_LEADER
+  FOLLOW_UP_OFFICER
+}
+
+enum GroupType {
+  CELL_GROUP
+  MINISTRY
+  COMMITTEE
+  CHOIR
+  DEPARTMENT
+}
+
+enum GroupMembershipRole {
+  LEADER
+  MEMBER
+}
+
+enum SyncStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum VisitorStatus {
+  FIRST_TIME
+  RETURNING
+  FOLLOW_UP_ASSIGNED
+  IN_PROGRESS
+  MEMBER_REGISTERED
+  NO_LONGER_ATTENDING
+}
+
+enum FollowUpChannel {
+  CALL
+  SMS
+  WHATSAPP
+  VISIT
+  EMAIL
+}
+
+enum TransactionSource {
+  LIPILA_MOMO
+  LIPILA_CARD
+  CASH
+  IN_PERSON
+  BANK_TRANSFER
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum NotificationKind {
+  EVENT_REMINDER
+  GROUP_ANNOUNCEMENT
+  VISITOR_FOLLOW_UP
+  VISITOR_AUTOMATED_REMINDER
+}
+
+enum VisitorReminderReason {
+  FOLLOW_UP_DUE
+  NOT_CONTACTED
+  RETURNED_AGAIN
+  NO_CELL_GROUP
+}
+
+model AdminUser {
+  id                   String                 @id @default(cuid())
+  email                String                 @unique
+  passwordHash         String
+  name                 String?
+  role                 UserRole               @default(FOLLOW_UP_OFFICER)
+  assignedVisitors     Visitor[]              @relation("AssignedOfficer")
+  followUpInteractions FollowUpInteraction[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+}
+
+model Region {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  campuses  Campus[]
+  persons   Person[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Campus {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  regionId  String?
+  region    Region?  @relation(fields: [regionId], references: [id])
+  persons   Person[]
+  groups    Group[]
+  events    Event[]
+  financeTransactions FinanceTransaction[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  persons   Person[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Person {
+  id               String            @id @default(cuid())
+  firstName        String
+  lastName         String
+  email            String?
+  phone            String?
+  gender           String?
+  dateOfBirth      DateTime?
+  campusId         String?
+  campus           Campus?           @relation(fields: [campusId], references: [id])
+  regionId         String?
+  region           Region?           @relation(fields: [regionId], references: [id])
+  householdId      String?
+  household        Household?        @relation(fields: [householdId], references: [id])
+  groupMemberships GroupMembership[]
+  member           Member?
+  visitor          Visitor?
+  eventRsvps       EventRSVP[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model Group {
+  id              String            @id @default(cuid())
+  name            String
+  description     String?
+  type            GroupType
+  meetsWhen       String?
+  location        String?
+  campusId        String?
+  campus          Campus?           @relation(fields: [campusId], references: [id])
+  memberships     GroupMembership[]
+  membersAsCell   Member[]              @relation("MemberCellGroup")
+  membersAsMinistry Member[]            @relation("MemberMinistry")
+  cellAttendances CellGroupAttendance[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([name, type])
+}
+
+model GroupMembership {
+  id        String              @id @default(cuid())
+  groupId   String
+  group     Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  personId  String
+  person    Person              @relation(fields: [personId], references: [id], onDelete: Cascade)
+  role      GroupMembershipRole @default(MEMBER)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@unique([groupId, personId])
+}
+
+model Member {
+  id               String   @id @default(cuid())
+  personId         String   @unique
+  person           Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  membershipNumber String   @unique
+  cellGroupId      String?
+  cellGroup        Group?   @relation("MemberCellGroup", fields: [cellGroupId], references: [id])
+  ministryGroupId  String?
+  ministryGroup    Group?   @relation("MemberMinistry", fields: [ministryGroupId], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Visitor {
+  id                    String        @id @default(cuid())
+  personId              String        @unique
+  person                Person        @relation(fields: [personId], references: [id], onDelete: Cascade)
+  status                VisitorStatus @default(FIRST_TIME)
+  residentialArea       String?
+  invitedBy             String?
+  firstVisitDate        DateTime?
+  serviceAttended       String?
+  prayerRequest         String?
+  interestedMinistry    String?
+  attendingWithChildren Boolean       @default(false)
+  numberOfChildren      Int?
+  howDidYouHear         String?
+  notes                 String?
+  assignedOfficerId     String?
+  assignedOfficer       AdminUser?    @relation("AssignedOfficer", fields: [assignedOfficerId], references: [id])
+  followUps             FollowUpInteraction[]
+  notificationLogs      NotificationLog[]
+  reminderLogs          VisitorReminderLog[]
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+}
+
+model FollowUpInteraction {
+  id               String          @id @default(cuid())
+  visitorId        String
+  visitor          Visitor         @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  channel          FollowUpChannel
+  interactionDate  DateTime
+  officerId        String?
+  officer          AdminUser?      @relation(fields: [officerId], references: [id])
+  outcome          String?
+  nextFollowUpDate DateTime?
+  createdAt        DateTime        @default(now())
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  location    String?
+  isFeatured  Boolean     @default(false)
+  campusId    String?
+  campus      Campus?     @relation(fields: [campusId], references: [id])
+  rsvps       EventRSVP[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model EventRSVP {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  personId  String
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, personId])
+}
+
+model ServiceAttendance {
+  id          String   @id @default(cuid())
+  serviceDate DateTime
+  serviceName String
+  menCount    Int      @default(0)
+  womenCount  Int      @default(0)
+  boysCount   Int      @default(0)
+  girlsCount  Int      @default(0)
+  campusId    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CellGroupAttendance {
+  id           String   @id @default(cuid())
+  groupId      String
+  group        Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  meetingDate  DateTime
+  presentCount Int      @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SyncQueue {
+  id         String     @id @default(cuid())
+  entityType String
+  entityId   String
+  payload    Json
+  status     SyncStatus @default(PENDING)
+  lastError  String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model FinanceTransaction {
+  id              String            @id @default(cuid())
+  source          TransactionSource
+  status          TransactionStatus @default(PENDING)
+  referenceId     String?           @unique
+  amount          Float
+  currency        String            @default("ZMW")
+  purpose         String?
+  payerName       String?
+  payerEmail      String?
+  payerPhone      String?
+  accountNumber   String?
+  paymentMethod   String?
+  externalId      String?
+  receiptId       String?
+  campusId        String?
+  campus          Campus?           @relation(fields: [campusId], references: [id])
+  notes           String?
+  lipilaPayload   Json?
+  transactionDate DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model NotificationLog {
+  id           String              @id @default(cuid())
+  kind         NotificationKind
+  channel      NotificationChannel
+  status       NotificationStatus  @default(PENDING)
+  recipient    String
+  subject      String?
+  body         String
+  entityType   String?
+  entityId     String?
+  visitorId    String?
+  visitor      Visitor?            @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+  errorMessage String?
+  sentAt       DateTime?
+  createdAt    DateTime            @default(now())
+}
+
+model VisitorReminderLog {
+  id        String                @id @default(cuid())
+  visitorId String
+  visitor   Visitor               @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  reason    VisitorReminderReason
+  createdAt DateTime              @default(now())
+
+  @@index([visitorId, reason, createdAt])
+}

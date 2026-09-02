@@ -1,25 +1,20 @@
 import { PageShell } from "@/components/layout/PageShell";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { queryDatabase } from "@/lib/db";
+import { getPublicEvents } from "@/lib/events/queries";
+import { rsvpToEventAction } from "@/lib/events/actions";
 import { supabase } from "@/lib/supabase";
 
-type Event = {
-  id: string;
-  title: string;
-  description: string | null;
-  starts_at: string;
-  ends_at: string | null;
-  location: string | null;
-  is_featured: boolean;
-};
-
-function formatDateRange(startsAt: string, endsAt: string | null) {
-  const start = new Date(startsAt);
-  const startDate = start.toLocaleDateString(undefined, {
+function formatDateRange(startsAt: Date, endsAt: Date | null) {
+  const startDate = startsAt.toLocaleDateString(undefined, {
     weekday: "short",
     month: "short",
     day: "numeric",
   });
-  const startTime = start.toLocaleTimeString(undefined, {
+  const startTime = startsAt.toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -28,13 +23,12 @@ function formatDateRange(startsAt: string, endsAt: string | null) {
     return `${startDate} · ${startTime}`;
   }
 
-  const end = new Date(endsAt);
   const sameDay =
-    start.getFullYear() === end.getFullYear() &&
-    start.getMonth() === end.getMonth() &&
-    start.getDate() === end.getDate();
+    startsAt.getFullYear() === endsAt.getFullYear() &&
+    startsAt.getMonth() === endsAt.getMonth() &&
+    startsAt.getDate() === endsAt.getDate();
 
-  const endTime = end.toLocaleTimeString(undefined, {
+  const endTime = endsAt.toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -43,7 +37,7 @@ function formatDateRange(startsAt: string, endsAt: string | null) {
     return `${startDate} · ${startTime}–${endTime}`;
   }
 
-  const endDate = end.toLocaleDateString(undefined, {
+  const endDate = endsAt.toLocaleDateString(undefined, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -51,23 +45,67 @@ function formatDateRange(startsAt: string, endsAt: string | null) {
   return `${startDate} ${startTime} → ${endDate} ${endTime}`;
 }
 
-export default async function EventsPage() {
-  const nowIso = new Date().toISOString();
+type EventsPageProps = {
+  searchParams?: Promise<{ success?: string; error?: string }>;
+};
 
-  if (!supabase) {
+export default async function EventsPage({ searchParams }: EventsPageProps) {
+  const params = await searchParams;
+  const now = new Date();
+  let events: Awaited<ReturnType<typeof getPublicEvents>> = [];
+  let loadError = false;
+
+  const prismaEvents = await queryDatabase(() => getPublicEvents(), null);
+  if (prismaEvents) {
+    events = prismaEvents;
+  } else if (supabase) {
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("starts_at", { ascending: true });
+
+    if (error) {
+      loadError = true;
+    } else {
+      events = (data || []).map((event) => ({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        startsAt: new Date(event.starts_at),
+        endsAt: event.ends_at ? new Date(event.ends_at) : null,
+        location: event.location,
+        isFeatured: event.is_featured,
+        campusId: null,
+        createdAt: new Date(event.created_at),
+        updatedAt: new Date(event.created_at),
+      }));
+    }
+  } else {
+    loadError = true;
+  }
+
+  const upcoming = events.filter((event) => event.startsAt >= now);
+  const past = events.filter((event) => event.startsAt < now).reverse();
+  const hasPastOnly = upcoming.length === 0 && past.length > 0;
+
+  const hero = (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
+        Events
+      </p>
+      <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        Upcoming gatherings at TOD.
+      </h1>
+      <p className="max-w-2xl text-sm text-white/85 sm:text-base">
+        Worship services, classes, groups, and ways to serve—there&apos;s a
+        next step for you.
+      </p>
+    </div>
+  );
+
+  if (loadError) {
     return (
-      <PageShell
-        hero={
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
-              Events
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Upcoming gatherings at TOD.
-            </h1>
-          </div>
-        }
-      >
+      <PageShell hero={hero}>
         <p className="text-sm text-red-600 dark:text-red-300">
           We weren&apos;t able to load events right now. Please try again later.
         </p>
@@ -75,55 +113,14 @@ export default async function EventsPage() {
     );
   }
 
-  const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .order("starts_at", { ascending: true });
-
-  if (error) {
-    // In a real app you might log this
-    return (
-      <PageShell
-        hero={
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
-              Events
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Upcoming gatherings at TOD.
-            </h1>
-          </div>
-        }
-      >
-        <p className="text-sm text-red-600 dark:text-red-300">
-          We weren&apos;t able to load events right now. Please try again
-          later.
-        </p>
-      </PageShell>
-    );
-  }
-
-  const events = (data || []) as Event[];
-  const upcoming = events.filter((e) => e.starts_at >= nowIso);
-  const past = events.filter((e) => e.starts_at < nowIso).reverse();
-
   return (
-    <PageShell
-      hero={
-        <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
-            Events
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Upcoming gatherings at TOD.
-          </h1>
-          <p className="max-w-2xl text-sm text-white/85 sm:text-base">
-            Worship services, classes, groups, and ways to serve—there&apos;s a
-            next step for you.
-          </p>
+    <PageShell hero={hero}>
+      {params?.success === "rsvp" && (
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
+          Thanks for your RSVP. We look forward to seeing you.
         </div>
-      }
-    >
+      )}
+
       <section className="space-y-6">
         <div>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -131,8 +128,9 @@ export default async function EventsPage() {
           </h2>
           {upcoming.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              There are no upcoming events scheduled right now. Check back soon
-              or join us on Sunday.
+              {hasPastOnly
+                ? "There are no upcoming events right now. See recent events below, or join us on Sunday."
+                : "There are no upcoming events scheduled right now. Check back soon or join us on Sunday."}
             </p>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -142,7 +140,7 @@ export default async function EventsPage() {
                   header={
                     <div className="space-y-1">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                        {formatDateRange(event.starts_at, event.ends_at)}
+                        {formatDateRange(event.startsAt, event.endsAt)}
                       </p>
                       <p className="text-sm font-medium text-foreground">
                         {event.title}
@@ -150,14 +148,31 @@ export default async function EventsPage() {
                     </div>
                   }
                   footer={
-                    event.location && (
+                    event.location ? (
                       <p className="text-xs text-muted-foreground">
                         {event.location}
                       </p>
-                    )
+                    ) : undefined
                   }
                 >
                   <p>{event.description}</p>
+                  {prismaEvents && (
+                    <form action={rsvpToEventAction} className="mt-4 space-y-2 border-t border-border pt-4">
+                      <input type="hidden" name="eventId" value={event.id} />
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        RSVP
+                      </p>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <Input name="firstName" placeholder="First name" required />
+                        <Input name="lastName" placeholder="Last name" required />
+                        <Input type="email" name="email" placeholder="Email" />
+                        <Input type="tel" name="phone" placeholder="Phone" />
+                      </div>
+                      <Button type="submit" variant="secondary">
+                        I&apos;ll be there
+                      </Button>
+                    </form>
+                  )}
                 </Card>
               ))}
             </div>
@@ -176,7 +191,7 @@ export default async function EventsPage() {
                   header={
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-muted-foreground">
-                        {formatDateRange(event.starts_at, event.ends_at)}
+                        {formatDateRange(event.startsAt, event.endsAt)}
                       </p>
                       <p className="text-sm font-medium text-foreground">
                         {event.title}
@@ -196,4 +211,3 @@ export default async function EventsPage() {
     </PageShell>
   );
 }
-

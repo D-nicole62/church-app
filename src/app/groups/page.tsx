@@ -2,17 +2,9 @@ import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { CHURCH_NAME, MINISTRY_CLUSTERS } from "@/lib/site";
-import { supabase } from "@/lib/supabase";
-
-type Group = {
-  id: string;
-  name: string;
-  description: string | null;
-  meets_when: string | null;
-  location: string | null;
-  contact_name: string | null;
-  contact_email: string | null;
-};
+import { isDatabaseConfigured } from "@/lib/db";
+import { getPublicCellGroups } from "@/lib/groups/queries";
+import { GroupMembershipRole } from "@/generated/prisma/client";
 
 const groupsHero = (
   <div className="space-y-3">
@@ -30,19 +22,14 @@ const groupsHero = (
 );
 
 export default async function GroupsPage() {
-  let groups: Group[] = [];
+  let cellGroups: Awaited<ReturnType<typeof getPublicCellGroups>> = [];
   let loadError = false;
 
-  if (supabase) {
-    const { data, error } = await supabase
-      .from("groups")
-      .select("*")
-      .order("name", { ascending: true });
-
-    if (error) {
+  if (isDatabaseConfigured()) {
+    try {
+      cellGroups = await getPublicCellGroups();
+    } catch {
       loadError = true;
-    } else {
-      groups = (data || []) as Group[];
     }
   } else {
     loadError = true;
@@ -97,7 +84,7 @@ export default async function GroupsPage() {
             </Link>{" "}
             to get connected.
           </p>
-        ) : groups.length === 0 ? (
+        ) : cellGroups.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Cell groups for the upcoming season will be announced soon. In the
             meantime, join us on Sundays and connect through our ministry
@@ -105,43 +92,55 @@ export default async function GroupsPage() {
           </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {groups.map((group) => (
-              <Card
-                key={group.id}
-                header={
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-foreground">
-                      {group.name}
-                    </p>
-                    {group.meets_when && (
-                      <p className="text-xs text-muted-foreground">
-                        {group.meets_when}
+            {cellGroups.map((group) => {
+              const leaders = group.memberships
+                .filter((m) => m.role === GroupMembershipRole.LEADER)
+                .map((m) => m.person);
+              const leader = leaders[0];
+
+              return (
+                <Card
+                  key={group.id}
+                  header={
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">
+                        {group.name}
                       </p>
-                    )}
-                  </div>
-                }
-                footer={
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    {group.location && <span>{group.location}</span>}
-                    {group.contact_email && (
-                      <Link
-                        href={`mailto:${group.contact_email}`}
-                        className="font-medium text-primary underline-offset-4 hover:underline"
-                      >
-                        Email leader
-                      </Link>
-                    )}
-                  </div>
-                }
-              >
-                <p>{group.description}</p>
-                {group.contact_name && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    Led by {group.contact_name}
-                  </p>
-                )}
-              </Card>
-            ))}
+                      {group.meetsWhen && (
+                        <p className="text-xs text-muted-foreground">
+                          {group.meetsWhen}
+                        </p>
+                      )}
+                    </div>
+                  }
+                  footer={
+                    group.location ? (
+                      <p className="text-xs text-muted-foreground">
+                        {group.location}
+                      </p>
+                    ) : undefined
+                  }
+                >
+                  <p>{group.description}</p>
+                  {leader && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Led by {leader.firstName} {leader.lastName}
+                      {leader.email && (
+                        <>
+                          {" · "}
+                          <Link
+                            href={`mailto:${leader.email}`}
+                            className="font-medium text-primary underline-offset-4 hover:underline"
+                          >
+                            Email leader
+                          </Link>
+                        </>
+                      )}
+                    </p>
+                  )}
+                </Card>
+              );
+            })}
           </div>
         )}
       </section>

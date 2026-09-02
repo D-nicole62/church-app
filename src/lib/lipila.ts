@@ -82,3 +82,34 @@ export function generateReferenceId(prefix = "tod"): string {
   const ts = Date.now().toString(16).slice(-4);
   return `${prefix}-${ts}${random}`;
 }
+
+export const GIVING_PURPOSE_OPTIONS = [
+  { id: "tithe", label: "Tithe" },
+  { id: "offering", label: "Offering" },
+  { id: "missions", label: "Missions" },
+  { id: "other", label: "Other" },
+] as const;
+
+export type GivingPurposeId = (typeof GIVING_PURPOSE_OPTIONS)[number]["id"];
+
+export function formatGivingNarration(
+  purpose: GivingPurposeId,
+  otherNote?: string,
+): string {
+  switch (purpose) {
+    case "tithe":
+      return "Tithe";
+    case "offering":
+      return "Offering";
+    case "missions":
+      return "Missions";
+    case "other": {
+      const note = otherNote?.trim();
+      return note ? `Other: ${note}` : "Other";
+    }
+    default: {
+      const exhaustive: never = purpose;
+      return exhaustive;
+    }
+  }
+}

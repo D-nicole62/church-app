@@ -7,9 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   DEFAULT_COUNTRY,
   DEFAULT_CURRENCY,
+  formatGivingNarration,
   generateReferenceId,
+  GIVING_PURPOSE_OPTIONS,
   type CardCollectionPayload,
   type CollectionStatus,
+  type GivingPurposeId,
   type GivingType,
   type MomoCollectionRequest,
 } from "@/lib/lipila";
@@ -72,7 +75,8 @@ export function GivingForm() {
 
   const [amount, setAmount] = useState("");
   const [email, setEmail] = useState("");
-  const [narration, setNarration] = useState("Tithe / Offering");
+  const [purpose, setPurpose] = useState<GivingPurposeId>("tithe");
+  const [otherNote, setOtherNote] = useState("");
 
   const [phone, setPhone] = useState("");
 
@@ -212,6 +216,7 @@ export function GivingForm() {
     }
 
     const referenceId = generateReferenceId();
+    const narration = formatGivingNarration(purpose, otherNote);
 
     try {
       if (type === "momo") {
@@ -226,7 +231,7 @@ export function GivingForm() {
         const data: MomoCollectionRequest = {
           referenceId,
           amount: amountNumber,
-          narration: narration || "Giving",
+          narration,
           accountNumber: phone.trim(),
           currency: DEFAULT_CURRENCY,
           ...(email.trim() ? { email: email.trim() } : {}),
@@ -293,7 +298,7 @@ export function GivingForm() {
           collectionRequest: {
             referenceId,
             amount: amountNumber,
-            narration: narration || "Giving",
+            narration,
             accountNumber: cardPhone.trim(),
             currency: DEFAULT_CURRENCY,
             backUrl,
@@ -516,6 +521,50 @@ export function GivingForm() {
       {renderStatusBanner()}
 
       <form onSubmit={handleSubmit} className="space-y-3">
+        <div>
+          <p className="mb-2 text-xs font-medium text-foreground/80">
+            What is this gift for?
+          </p>
+          <div
+            className="flex flex-wrap gap-2"
+            role="radiogroup"
+            aria-label="Giving purpose"
+          >
+            {GIVING_PURPOSE_OPTIONS.map((option) => {
+              const active = purpose === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setPurpose(option.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                    active
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border bg-card text-foreground/70 hover:border-primary/40 hover:text-primary",
+                  )}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+          {purpose === "other" && (
+            <div className="mt-3">
+              <label className="mb-1 block text-xs font-medium text-foreground/80">
+                Please specify (optional)
+              </label>
+              <Input
+                value={otherNote}
+                onChange={(e) => setOtherNote(e.target.value)}
+                placeholder="e.g. Building fund, special project"
+              />
+            </div>
+          )}
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground/80">
@@ -528,17 +577,6 @@ export function GivingForm() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="100"
-              required
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-foreground/80">
-              Purpose
-            </label>
-            <Input
-              value={narration}
-              onChange={(e) => setNarration(e.target.value)}
-              placeholder="Tithe / Offering / Missions"
               required
             />
           </div>

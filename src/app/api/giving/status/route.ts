@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { LIPILA_STATUS_URL } from "@/lib/lipila";
+import { LIPILA_STATUS_URL, type CollectionStatus } from "@/lib/lipila";
+import {
+  recordFailedLipilaFromStatus,
+  recordSuccessfulLipilaFromStatus,
+} from "@/lib/finance/record";
 
 export const runtime = "nodejs";
 
@@ -71,6 +75,16 @@ export async function GET(request: Request) {
       },
       { status: 502 },
     );
+  }
+
+  if (upstream.ok && decoded && typeof decoded === "object") {
+    const statusPayload = decoded as CollectionStatus;
+    try {
+      await recordSuccessfulLipilaFromStatus(statusPayload);
+      await recordFailedLipilaFromStatus(statusPayload);
+    } catch {
+      // Finance recording must not block status checks for the Give UI.
+    }
   }
 
   return NextResponse.json(decoded, { status: upstream.status });

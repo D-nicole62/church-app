@@ -4,6 +4,9 @@ import {
   LIPILA_MOMO_URL,
   type GivingRequestBody,
 } from "@/lib/lipila";
+import {
+  recordPendingLipilaTransaction,
+} from "@/lib/finance/record";
 
 export const runtime = "nodejs";
 
@@ -84,6 +87,36 @@ export async function POST(request: Request) {
       },
       { status: 502 },
     );
+  }
+
+  if (upstream.ok && body) {
+    try {
+      if (body.type === "momo") {
+        await recordPendingLipilaTransaction({
+          type: "momo",
+          referenceId: body.data.referenceId,
+          amount: body.data.amount,
+          currency: body.data.currency,
+          purpose: body.data.narration,
+          accountNumber: body.data.accountNumber,
+          email: body.data.email,
+        });
+      } else {
+        await recordPendingLipilaTransaction({
+          type: "card",
+          referenceId: body.data.collectionRequest.referenceId,
+          amount: body.data.collectionRequest.amount,
+          currency: body.data.collectionRequest.currency,
+          purpose: body.data.collectionRequest.narration,
+          accountNumber: body.data.collectionRequest.accountNumber,
+          email: body.data.customerInfo.email,
+          payerName: `${body.data.customerInfo.firstName} ${body.data.customerInfo.lastName}`.trim(),
+          payerPhone: body.data.customerInfo.phoneNumber,
+        });
+      }
+    } catch {
+      // Finance recording must not block the live payment flow.
+    }
   }
 
   return NextResponse.json(decoded, { status: upstream.status });
