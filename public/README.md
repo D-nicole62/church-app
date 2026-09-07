@@ -250,9 +250,13 @@ unspecified — flag them rather than guessing:
 ## 8. Suggested environment variables (add as each phase needs them)
 
 ```
-DATABASE_URL=
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
+DATABASE_URL=              # Supabase pooled URL (port 6543, ?pgbouncer=true)
+DIRECT_URL=                # Supabase session URL (port 5432)
+AUTH_SECRET=               # openssl rand -base64 32
+AUTH_URL=                  # https://church-app-ashy.vercel.app (production) or http://localhost:3000 (local)
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY= # optional; server-side Supabase usage
 SAGE_API_BASE_URL=
 SAGE_API_KEY=
 LIPILA_API_KEY=            # confirm existing var name from current Give integration

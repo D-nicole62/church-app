@@ -1,8 +1,12 @@
 import type { NextAuthConfig } from "next-auth";
 
+function getAuthSecret() {
+  return process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+}
+
 export const authConfig = {
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
+  secret: getAuthSecret(),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/admin/login",

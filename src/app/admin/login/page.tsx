@@ -24,9 +24,6 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
             Admin sign in
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Authenticated staff area — not linked from the public site.
-          </p>
         </div>
 
         <Card
