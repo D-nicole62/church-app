@@ -2,6 +2,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { authConfig } from "@/auth.config";
+import {
+  getDatabaseErrorMessage,
+  isDatabaseConnectionError,
+} from "@/lib/db-health";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -21,7 +25,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const user = await prisma.adminUser.findUnique({ where: { email } });
+        let user;
+        try {
+          user = await prisma.adminUser.findUnique({ where: { email } });
+        } catch (error) {
+          if (isDatabaseConnectionError(error)) {
+            if (process.env.NODE_ENV === "development") {
+              console.error(
+                "[auth] database unreachable during login:",
+                getDatabaseErrorMessage(error),
+              );
+            }
+            throw new Error("DATABASE_UNAVAILABLE");
+          }
+          throw error;
+        }
+
         if (!user) {
           return null;
         }

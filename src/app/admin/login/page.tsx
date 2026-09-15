@@ -3,6 +3,7 @@ import { loginAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getDatabaseHealth } from "@/lib/db-health";
 import { CHURCH_NAME_SHORT } from "@/lib/site";
 
 type AdminLoginPageProps = {
@@ -11,8 +12,16 @@ type AdminLoginPageProps = {
 
 export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
   const params = await searchParams;
-  const hasError = params?.error === "invalid";
+  const hasInvalidCredentials = params?.error === "invalid";
+  const hasDatabaseError = params?.error === "database";
   const callbackUrl = params?.callbackUrl ?? "/admin";
+  const dbHealth = await getDatabaseHealth();
+  const databaseMessage =
+    dbHealth.status === "ok"
+      ? "Sign-in failed because the database was unreachable. Fix DATABASE_URL / DIRECT_URL, run db:push and db:seed, then try again."
+      : dbHealth.message;
+  const showDatabaseWarning =
+    dbHealth.status !== "ok" || hasDatabaseError;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -33,7 +42,27 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
             </p>
           }
         >
-          {hasError && (
+          {showDatabaseWarning && (
+            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100">
+              <p className="font-semibold">Database unavailable</p>
+              <p className="mt-1">{databaseMessage}</p>
+              {process.env.NODE_ENV === "development" && (
+                <p className="mt-2 text-[11px] opacity-90">
+                  Dev tip: confirm Supabase is active, env vars are loaded, then run{" "}
+                  <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50">
+                    npm run db:push
+                  </code>{" "}
+                  and{" "}
+                  <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50">
+                    npm run db:seed
+                  </code>
+                  .
+                </p>
+              )}
+            </div>
+          )}
+
+          {hasInvalidCredentials && (
             <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
               Invalid email or password.
             </div>
