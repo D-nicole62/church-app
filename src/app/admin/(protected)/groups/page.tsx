@@ -8,6 +8,7 @@ export default async function AdminGroupsPage() {
   const groups = await prisma.group.findMany({
     include: {
       campus: true,
+      zone: { include: { region: true } },
       _count: { select: { memberships: true } },
     },
     orderBy: [{ type: "asc" }, { name: "asc" }],
@@ -36,6 +37,8 @@ export default async function AdminGroupsPage() {
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-2 py-2">Name</th>
                   <th className="px-2 py-2">Type</th>
+                  <th className="px-2 py-2">Region</th>
+                  <th className="px-2 py-2">Zone</th>
                   <th className="px-2 py-2">Campus</th>
                   <th className="px-2 py-2">Members</th>
                   <th className="px-2 py-2" />
@@ -47,6 +50,12 @@ export default async function AdminGroupsPage() {
                     <td className="px-2 py-3 font-medium">{group.name}</td>
                     <td className="px-2 py-3 text-muted-foreground">
                       {group.type.replaceAll("_", " ")}
+                    </td>
+                    <td className="px-2 py-3 text-muted-foreground">
+                      {group.zone?.region.name ?? "—"}
+                    </td>
+                    <td className="px-2 py-3 text-muted-foreground">
+                      {group.zone?.name ?? "—"}
                     </td>
                     <td className="px-2 py-3 text-muted-foreground">
                       {group.campus?.name ?? "—"}

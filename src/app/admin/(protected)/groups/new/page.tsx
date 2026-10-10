@@ -5,7 +5,7 @@ import { getAdminLookups } from "@/lib/admin/lookups";
 import { createGroupAction } from "@/lib/groups/actions";
 
 export default async function NewGroupPage() {
-  const { campuses } = await getAdminLookups();
+  const { campuses, zones } = await getAdminLookups();
 
   return (
     <div className="space-y-6">
@@ -18,6 +18,7 @@ export default async function NewGroupPage() {
         <GroupForm
           action={createGroupAction}
           campuses={campuses}
+          zones={zones}
           submitLabel="Create group"
         />
       </Card>

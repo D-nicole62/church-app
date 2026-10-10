@@ -61,6 +61,8 @@ function GroupReportTable({ title, rows }: { title: string; rows: GroupRow[] }) 
             <thead>
               <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="px-2 py-2">Group</th>
+                <th className="px-2 py-2">Region</th>
+                <th className="px-2 py-2">Zone</th>
                 <th className="px-2 py-2">Campus</th>
                 <th className="px-2 py-2">Leaders</th>
                 <th className="px-2 py-2">Members</th>
@@ -81,6 +83,8 @@ function GroupReportTable({ title, rows }: { title: string; rows: GroupRow[] }) 
                       {group.name}
                     </Link>
                   </td>
+                  <td className="px-2 py-3 text-muted-foreground">{group.region}</td>
+                  <td className="px-2 py-3 text-muted-foreground">{group.zone}</td>
                   <td className="px-2 py-3 text-muted-foreground">{group.campus}</td>
                   <td className="px-2 py-3">{group.leaders}</td>
                   <td className="px-2 py-3">{group.members}</td>

@@ -1,4 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
+import { ensureAuthUrlEnv } from "@/lib/auth-url";
+
+ensureAuthUrlEnv();
 
 function getAuthSecret() {
   return process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;

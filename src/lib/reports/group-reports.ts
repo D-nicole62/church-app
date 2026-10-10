@@ -38,6 +38,7 @@ export async function getGroupReports() {
     prisma.group.findMany({
       include: {
         campus: true,
+        zone: { include: { region: true } },
         memberships: true,
         cellAttendances: {
           orderBy: { meetingDate: "desc" },
@@ -84,6 +85,8 @@ export async function getGroupReports() {
       id: group.id,
       name: group.name,
       type: group.type,
+      region: group.zone?.region.name ?? "—",
+      zone: group.zone?.name ?? "—",
       campus: group.campus?.name ?? "—",
       leaders,
       members,

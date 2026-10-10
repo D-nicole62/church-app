@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { auth } from "@/auth";
-import { ROLE_LABELS } from "@/lib/auth/roles";
 import { formatCurrency } from "@/lib/finance/format";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage() {
-  const session = await auth();
   const [campusCount, groupCount, memberCount, visitorCount, eventCount, financeTotal] =
     await Promise.all([
       prisma.campus.count(),
@@ -29,11 +26,6 @@ export default async function AdminDashboardPage() {
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
           TOD church operations
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Signed in as {session?.user.email} (
-          {session?.user.role ? ROLE_LABELS[session.user.role] : "Admin"}).
-          Phases 1–8 modules are available from the sidebar.
-        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">

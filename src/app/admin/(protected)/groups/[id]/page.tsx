@@ -33,6 +33,7 @@ export default async function GroupDetailPage({
       where: { id },
       include: {
         campus: true,
+        zone: { include: { region: true } },
         memberships: {
           include: { person: true },
           orderBy: [{ role: "asc" }, { createdAt: "asc" }],
@@ -70,7 +71,14 @@ export default async function GroupDetailPage({
       <AdminPageHeader
         eyebrow="Groups"
         title={group.name}
-        description={`${group.type.replaceAll("_", " ")}${group.campus ? ` · ${group.campus.name}` : ""}`}
+        description={[
+          group.type.replaceAll("_", " "),
+          group.zone?.region.name,
+          group.zone?.name,
+          group.campus?.name,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
         action={
           <Link href="/admin/groups">
             <Button variant="secondary">Back to list</Button>
@@ -82,6 +90,7 @@ export default async function GroupDetailPage({
         <GroupForm
           action={updateAction}
           campuses={lookups.campuses}
+          zones={lookups.zones}
           group={group}
           submitLabel="Save changes"
         />

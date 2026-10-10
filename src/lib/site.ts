@@ -78,48 +78,7 @@ export const CONTACT = {
   postal: "P.O. Box 32089, Lusaka, Zambia",
 } as const;
 
-export const MINISTRY_CLUSTERS = [
-  {
-    title: "The Cell Church",
-    description:
-      "The ministry promotes strong Christian relationships, community engagement, and active participation in the vision of the Church.",
-  },
-  {
-    title: "Evangelism and Missions",
-    description:
-      "Fulfilling the Great Commission through soul winning, outreach programs, and mission activities. As an outward-looking church, the ministry focuses on reaching communities with the message of salvation, hope, and restoration through evangelism and community impact initiatives.",
-  },
-  {
-    title: "Church Operations",
-    description:
-      "Provides the logistical, administrative, and support backbone that enables the Church to function effectively.",
-  },
-  {
-    title: "Spiritual Formation and Discipleship",
-    description:
-      "Exists to nurture the spiritual growth of believers and strengthen their walk with Christ. Its core mandate is to equip saints for the end-time harvest through teaching, mentoring and discipleship, guided by the power of the Holy Spirit.",
-  },
-  {
-    title: "Community and Engagement",
-    description:
-      "Responsible for extending the Church's mission into the wider community through meaningful partnerships.",
-  },
-  {
-    title: "Family Life and Support",
-    description:
-      "Dedicated to strengthening families, Gender Discipleship, and Youth Ministry.",
-  },
-  {
-    title: "Projects and Business Ventures",
-    description:
-      "Manages special initiatives and development projects that advance the Church's mission and sustainability.",
-  },
-  {
-    title: "Care and Counselling",
-    description:
-      "Dedicated to providing holistic support and care to individuals and families in our church, focusing on critical areas that impact lives.",
-  },
-] as const;
+export { MINISTRY_CLUSTERS } from "@/lib/church-ministries";
 
 export const FACEBOOK_URL =
   process.env.NEXT_PUBLIC_FACEBOOK_URL?.trim() ||

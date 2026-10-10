@@ -6,6 +6,7 @@ export async function getPublicCellGroups() {
     where: { type: GroupType.CELL_GROUP },
     include: {
       campus: true,
+      zone: { include: { region: true } },
       memberships: {
         where: { role: GroupMembershipRole.LEADER },
         include: { person: true },

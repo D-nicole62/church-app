@@ -14,7 +14,6 @@ function memberFormData(formData: FormData) {
     phone: formData.get("phone")?.toString().trim() || null,
     gender: formData.get("gender")?.toString().trim() || null,
     campusId: formData.get("campusId")?.toString().trim() || null,
-    regionId: formData.get("regionId")?.toString().trim() || null,
     householdId: formData.get("householdId")?.toString().trim() || null,
     cellGroupId: formData.get("cellGroupId")?.toString().trim() || null,
     ministryGroupId: formData.get("ministryGroupId")?.toString().trim() || null,
@@ -42,7 +41,6 @@ export async function createMemberAction(formData: FormData) {
         gender: data.gender,
         dateOfBirth,
         campusId: data.campusId,
-        regionId: data.regionId,
         householdId: data.householdId,
       },
     });
@@ -96,7 +94,6 @@ export async function updateMemberAction(memberId: string, formData: FormData) {
         gender: data.gender,
         dateOfBirth,
         campusId: data.campusId,
-        regionId: data.regionId,
         householdId: data.householdId,
       },
     });

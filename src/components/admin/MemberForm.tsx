@@ -1,6 +1,10 @@
 import type { Member, Person } from "@/generated/prisma/client";
 import type { AdminLookups } from "@/lib/admin/lookups";
 import { AdminSelect } from "@/components/admin/AdminSelect";
+import {
+  groupMinistriesByCluster,
+  groupZonesByRegion,
+} from "@/lib/ministries/display";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -19,6 +23,14 @@ export function MemberForm({
   member,
   submitLabel,
 }: MemberFormProps) {
+  const ministryClusters = groupMinistriesByCluster(
+    lookups.ministryGroups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      clusterName: group.clusterName,
+    })),
+  );
+  const zonesByRegion = groupZonesByRegion(lookups.zones);
   const person = member?.person;
   const dateOfBirth = person?.dateOfBirth
     ? person.dateOfBirth.toISOString().slice(0, 10)
@@ -75,33 +87,18 @@ export function MemberForm({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-foreground/80">
-            Campus *
-          </label>
-          <AdminSelect name="campusId" defaultValue={person?.campusId ?? ""} required>
-            <option value="">Select campus</option>
-            {lookups.campuses.map((campus) => (
-              <option key={campus.id} value={campus.id}>
-                {campus.name}
-              </option>
-            ))}
-          </AdminSelect>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-foreground/80">
-            Region
-          </label>
-          <AdminSelect name="regionId" defaultValue={person?.regionId ?? ""}>
-            <option value="">Select region</option>
-            {lookups.regions.map((region) => (
-              <option key={region.id} value={region.id}>
-                {region.name}
-              </option>
-            ))}
-          </AdminSelect>
-        </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-foreground/80">
+          Campus *
+        </label>
+        <AdminSelect name="campusId" defaultValue={person?.campusId ?? ""} required>
+          <option value="">Select campus</option>
+          {lookups.campuses.map((campus) => (
+            <option key={campus.id} value={campus.id}>
+              {campus.name}
+            </option>
+          ))}
+        </AdminSelect>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -111,11 +108,22 @@ export function MemberForm({
           </label>
           <AdminSelect name="cellGroupId" defaultValue={member?.cellGroupId ?? ""}>
             <option value="">None</option>
-            {lookups.cellGroups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
+            {zonesByRegion.map((region) =>
+              region.zones.map((zone) => (
+                <optgroup
+                  key={zone.id}
+                  label={`${region.title} — ${zone.name}`}
+                >
+                  {lookups.cellGroups
+                    .filter((group) => group.zoneId === zone.id)
+                    .map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                </optgroup>
+              )),
+            )}
           </AdminSelect>
         </div>
         <div>
@@ -127,10 +135,14 @@ export function MemberForm({
             defaultValue={member?.ministryGroupId ?? ""}
           >
             <option value="">None</option>
-            {lookups.ministryGroups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
+            {ministryClusters.map((cluster) => (
+              <optgroup key={cluster.title} label={cluster.title}>
+                {cluster.ministries.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </AdminSelect>
         </div>

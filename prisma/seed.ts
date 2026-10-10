@@ -2,7 +2,21 @@ import { hash } from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient, GroupType, UserRole } from "../src/generated/prisma/client";
-import { MINISTRY_CLUSTERS } from "../src/lib/site";
+import {
+  MINISTRY_CLUSTERS,
+  RETIRED_MINISTRY_GROUP_NAMES,
+  getMinistryCount,
+} from "../src/lib/church-ministries";
+import {
+  CHURCH_CAMPUSES,
+  PRIMARY_CAMPUS_NAME,
+} from "../src/lib/church-campuses";
+import {
+  CELL_CHURCH_STRUCTURE,
+  RETIRED_CELL_CHURCH_NAMES,
+  countCellChurchCells,
+} from "../src/lib/cell-church-structure";
+import { CHURCH_REGIONS } from "../src/lib/church-regions";
 
 const pool = new Pool({
   connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
@@ -14,40 +28,113 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const region = await prisma.region.upsert({
-    where: { name: "Lusaka" },
-    update: {},
-    create: { name: "Lusaka" },
+  await prisma.group.deleteMany({
+    where: {
+      type: GroupType.CELL_GROUP,
+      name: { in: [...RETIRED_CELL_CHURCH_NAMES.cells] },
+    },
   });
 
-  const campus = await prisma.campus.upsert({
-    where: { name: "City Mission Campus" },
-    update: { regionId: region.id },
-    create: {
-      name: "City Mission Campus",
-      regionId: region.id,
+  for (const retiredZone of RETIRED_CELL_CHURCH_NAMES.zones) {
+    const region = await prisma.region.findUnique({
+      where: { name: retiredZone.regionName },
+    });
+    if (!region) {
+      continue;
+    }
+    await prisma.zone.deleteMany({
+      where: { regionId: region.id, name: retiredZone.zoneName },
+    });
+  }
+
+  let zoneCount = 0;
+
+  for (const regionDef of CELL_CHURCH_STRUCTURE.regions) {
+    const region = await prisma.region.upsert({
+      where: { name: regionDef.name },
+      update: {},
+      create: { name: regionDef.name },
+    });
+
+    for (const zoneDef of regionDef.zones) {
+      zoneCount += 1;
+      const zone = await prisma.zone.upsert({
+        where: {
+          regionId_name: {
+            regionId: region.id,
+            name: zoneDef.name,
+          },
+        },
+        update: {},
+        create: {
+          name: zoneDef.name,
+          regionId: region.id,
+        },
+      });
+
+      for (const cellName of zoneDef.cells) {
+        await prisma.group.upsert({
+          where: {
+            name_type: {
+              name: cellName,
+              type: GroupType.CELL_GROUP,
+            },
+          },
+          update: { zoneId: zone.id },
+          create: {
+            name: cellName,
+            type: GroupType.CELL_GROUP,
+            zoneId: zone.id,
+          },
+        });
+      }
+    }
+  }
+
+  const campusesByName = new Map<string, { id: string; name: string }>();
+
+  for (const campusName of CHURCH_CAMPUSES) {
+    const campus = await prisma.campus.upsert({
+      where: { name: campusName },
+      update: {},
+      create: { name: campusName },
+    });
+    campusesByName.set(campusName, campus);
+  }
+
+  const primaryCampus = campusesByName.get(PRIMARY_CAMPUS_NAME);
+  if (!primaryCampus) {
+    throw new Error(`Expected primary campus "${PRIMARY_CAMPUS_NAME}" after seeding.`);
+  }
+
+  await prisma.group.deleteMany({
+    where: {
+      type: GroupType.MINISTRY,
+      name: { in: [...RETIRED_MINISTRY_GROUP_NAMES] },
     },
   });
 
   for (const cluster of MINISTRY_CLUSTERS) {
-    await prisma.group.upsert({
-      where: {
-        name_type: {
-          name: cluster.title,
-          type: GroupType.MINISTRY,
+    for (const ministryName of cluster.ministries) {
+      await prisma.group.upsert({
+        where: {
+          name_type: {
+            name: ministryName,
+            type: GroupType.MINISTRY,
+          },
         },
-      },
-      update: {
-        description: cluster.description,
-        campusId: campus.id,
-      },
-      create: {
-        name: cluster.title,
-        description: cluster.description,
-        type: GroupType.MINISTRY,
-        campusId: campus.id,
-      },
-    });
+        update: {
+          clusterName: cluster.title,
+          campusId: primaryCampus.id,
+        },
+        create: {
+          name: ministryName,
+          clusterName: cluster.title,
+          type: GroupType.MINISTRY,
+          campusId: primaryCampus.id,
+        },
+      });
+    }
   }
 
   const adminEmail =
@@ -72,9 +159,14 @@ async function main() {
   });
 
   console.log("Seed complete:");
-  console.log(`  Region: ${region.name}`);
-  console.log(`  Campus: ${campus.name}`);
-  console.log(`  Ministry groups: ${MINISTRY_CLUSTERS.length}`);
+  console.log(`  Regions: ${CHURCH_REGIONS.length} (${CHURCH_REGIONS.join(", ")})`);
+  console.log(`  Zones: ${zoneCount}, cell groups: ${countCellChurchCells()}`);
+  console.log(
+    `  Campuses: ${CHURCH_CAMPUSES.length} (${CHURCH_CAMPUSES.join(", ")})`,
+  );
+  console.log(
+    `  Ministry clusters: ${MINISTRY_CLUSTERS.length}, ministries: ${getMinistryCount()}`,
+  );
   console.log(`  Admin user: ${adminEmail}`);
 }
 

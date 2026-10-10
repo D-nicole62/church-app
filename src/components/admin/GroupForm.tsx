@@ -1,19 +1,40 @@
-import { GroupType, type Group, type Campus } from "@/generated/prisma/client";
+import {
+  GroupType,
+  type Campus,
+  type Group,
+  type Zone,
+} from "@/generated/prisma/client";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { groupZonesByRegion } from "@/lib/ministries/display";
 
 const GROUP_TYPES = Object.values(GroupType);
+
+type ZoneWithRegion = Zone & {
+  region: { id: string; name: string };
+};
 
 type GroupFormProps = {
   action: (formData: FormData) => Promise<void>;
   campuses: Campus[];
+  zones: ZoneWithRegion[];
   group?: Group;
   submitLabel: string;
 };
 
-export function GroupForm({ action, campuses, group, submitLabel }: GroupFormProps) {
+export function GroupForm({
+  action,
+  campuses,
+  zones,
+  group,
+  submitLabel,
+}: GroupFormProps) {
+  const isCellGroup =
+    (group?.type ?? GroupType.CELL_GROUP) === GroupType.CELL_GROUP;
+  const zonesByRegion = groupZonesByRegion(zones);
+
   return (
     <form action={action} className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -63,18 +84,40 @@ export function GroupForm({ action, campuses, group, submitLabel }: GroupFormPro
         </div>
       </div>
 
-      <div>
-        <label className="mb-1 block text-xs font-medium text-foreground/80">
-          Campus
-        </label>
-        <AdminSelect name="campusId" defaultValue={group?.campusId ?? ""}>
-          <option value="">No campus selected</option>
-          {campuses.map((campus) => (
-            <option key={campus.id} value={campus.id}>
-              {campus.name}
-            </option>
-          ))}
-        </AdminSelect>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-foreground/80">
+            Zone {isCellGroup ? "*" : ""}
+          </label>
+          <AdminSelect name="zoneId" defaultValue={group?.zoneId ?? ""}>
+            <option value="">Select zone</option>
+            {zonesByRegion.map((region) => (
+              <optgroup key={region.title} label={region.title}>
+                {region.zones.map((zone) => (
+                  <option key={zone.id} value={zone.id}>
+                    {zone.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </AdminSelect>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Cell groups belong to a region through a zone (region → zone → cell).
+          </p>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-foreground/80">
+            Campus
+          </label>
+          <AdminSelect name="campusId" defaultValue={group?.campusId ?? ""}>
+            <option value="">No campus selected</option>
+            {campuses.map((campus) => (
+              <option key={campus.id} value={campus.id}>
+                {campus.name}
+              </option>
+            ))}
+          </AdminSelect>
+        </div>
       </div>
 
       <Button type="submit">{submitLabel}</Button>

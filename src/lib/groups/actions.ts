@@ -17,13 +17,17 @@ function parseGroupType(value: FormDataEntryValue | null): GroupType {
 }
 
 function groupFormData(formData: FormData) {
+  const type = parseGroupType(formData.get("type"));
+  const zoneId = formData.get("zoneId")?.toString().trim() || null;
+
   return {
     name: formData.get("name")?.toString().trim() ?? "",
     description: formData.get("description")?.toString().trim() || null,
-    type: parseGroupType(formData.get("type")),
+    type,
     meetsWhen: formData.get("meetsWhen")?.toString().trim() || null,
     location: formData.get("location")?.toString().trim() || null,
     campusId: formData.get("campusId")?.toString().trim() || null,
+    zoneId: type === GroupType.CELL_GROUP ? zoneId : null,
   };
 }
 
@@ -31,6 +35,9 @@ export async function createGroupAction(formData: FormData) {
   const data = groupFormData(formData);
   if (!data.name) {
     redirect("/admin/groups/new?error=missing-name");
+  }
+  if (data.type === GroupType.CELL_GROUP && !data.zoneId) {
+    redirect("/admin/groups/new?error=missing-zone");
   }
 
   const group = await prisma.group.create({ data });
@@ -43,6 +50,9 @@ export async function updateGroupAction(groupId: string, formData: FormData) {
   const data = groupFormData(formData);
   if (!data.name) {
     redirect(`/admin/groups/${groupId}?error=missing-name`);
+  }
+  if (data.type === GroupType.CELL_GROUP && !data.zoneId) {
+    redirect(`/admin/groups/${groupId}?error=missing-zone`);
   }
 
   await prisma.group.update({

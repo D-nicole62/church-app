@@ -107,17 +107,26 @@ model AdminUser {
 model Region {
   id        String   @id @default(cuid())
   name      String   @unique
-  campuses  Campus[]
-  persons   Person[]
+  zones     Zone[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Zone {
+  id        String   @id @default(cuid())
+  name      String
+  regionId  String
+  region    Region   @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  groups    Group[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([regionId, name])
 }
 
 model Campus {
   id        String   @id @default(cuid())
   name      String   @unique
-  regionId  String?
-  region    Region?  @relation(fields: [regionId], references: [id])
   persons   Person[]
   groups    Group[]
   events    Event[]
@@ -144,8 +153,6 @@ model Person {
   dateOfBirth      DateTime?
   campusId         String?
   campus           Campus?           @relation(fields: [campusId], references: [id])
-  regionId         String?
-  region           Region?           @relation(fields: [regionId], references: [id])
   householdId      String?
   household        Household?        @relation(fields: [householdId], references: [id])
   groupMemberships GroupMembership[]
@@ -160,11 +167,14 @@ model Group {
   id              String            @id @default(cuid())
   name            String
   description     String?
+  clusterName     String?
   type            GroupType
   meetsWhen       String?
   location        String?
   campusId        String?
   campus          Campus?           @relation(fields: [campusId], references: [id])
+  zoneId          String?
+  zone            Zone?             @relation(fields: [zoneId], references: [id])
   memberships     GroupMembership[]
   membersAsCell   Member[]              @relation("MemberCellGroup")
   membersAsMinistry Member[]            @relation("MemberMinistry")

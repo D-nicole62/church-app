@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 const emptyLookups = {
   campuses: [],
   regions: [],
+  zones: [],
   cellGroups: [],
   ministryGroups: [],
   households: [],
@@ -14,17 +15,22 @@ const emptyLookups = {
 
 export async function getAdminLookups() {
   return queryDatabase(async () => {
-    const [campuses, regions, cellGroups, ministryGroups, households, persons, officers] =
+    const [campuses, regions, zones, cellGroups, ministryGroups, households, persons, officers] =
       await Promise.all([
         prisma.campus.findMany({ orderBy: { name: "asc" } }),
         prisma.region.findMany({ orderBy: { name: "asc" } }),
+        prisma.zone.findMany({
+          orderBy: [{ region: { name: "asc" } }, { name: "asc" }],
+          include: { region: true },
+        }),
         prisma.group.findMany({
           where: { type: GroupType.CELL_GROUP },
           orderBy: { name: "asc" },
+          include: { zone: { include: { region: true } } },
         }),
         prisma.group.findMany({
           where: { type: GroupType.MINISTRY },
-          orderBy: { name: "asc" },
+          orderBy: [{ clusterName: "asc" }, { name: "asc" }],
         }),
         prisma.household.findMany({ orderBy: { name: "asc" }, take: 100 }),
         prisma.person.findMany({
@@ -40,6 +46,7 @@ export async function getAdminLookups() {
     return {
       campuses,
       regions,
+      zones,
       cellGroups,
       ministryGroups,
       households,

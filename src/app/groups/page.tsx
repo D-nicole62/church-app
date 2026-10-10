@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
-import { CHURCH_NAME, MINISTRY_CLUSTERS } from "@/lib/site";
+import { CELL_CHURCH_STRUCTURE } from "@/lib/cell-church-structure";
+import { MINISTRY_CLUSTERS } from "@/lib/church-ministries";
+import { CHURCH_NAME } from "@/lib/site";
 import { isDatabaseConfigured } from "@/lib/db";
 import { getPublicCellGroups } from "@/lib/groups/queries";
 import { GroupMembershipRole } from "@/generated/prisma/client";
@@ -56,9 +58,49 @@ export default async function GroupsPage() {
                 </p>
               }
             >
-              <p className="text-sm text-muted-foreground">
-                {cluster.description}
-              </p>
+              <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                {cluster.ministries.map((ministry) => (
+                  <li key={ministry}>{ministry}</li>
+                ))}
+              </ul>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">
+            Cell church regions
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Regions, zones, and cells across {CHURCH_NAME}.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {CELL_CHURCH_STRUCTURE.regions.map((region) => (
+            <Card
+              key={region.name}
+              header={
+                <p className="text-sm font-medium text-foreground">{region.name}</p>
+              }
+            >
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                {region.zones.map((zone) => (
+                  <li key={zone.name}>
+                    <p className="font-medium text-foreground/90">{zone.name}</p>
+                    {zone.cells.length > 0 ? (
+                      <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1">
+                        {zone.cells.map((cell) => (
+                          <li key={cell}>{cell}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-1 text-xs italic">Cells to be announced</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </Card>
           ))}
         </div>
@@ -106,11 +148,14 @@ export default async function GroupsPage() {
                       <p className="text-sm font-medium text-foreground">
                         {group.name}
                       </p>
-                      {group.meetsWhen && (
-                        <p className="text-xs text-muted-foreground">
-                          {group.meetsWhen}
-                        </p>
-                      )}
+                      <div className="space-y-0.5 text-xs text-muted-foreground">
+                        {group.zone && (
+                          <p>
+                            {group.zone.region.name} · {group.zone.name}
+                          </p>
+                        )}
+                        {group.meetsWhen && <p>{group.meetsWhen}</p>}
+                      </div>
                     </div>
                   }
                   footer={

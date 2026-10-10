@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupType } from "@/generated/prisma/client";
-import { CHURCH_NAME, CONTACT, SERVICE_TIMES } from "@/lib/site";
+import { MINISTRY_CLUSTERS } from "@/lib/church-ministries";
 import { queryDatabase } from "@/lib/db";
+import { groupMinistriesByCluster } from "@/lib/ministries/display";
 import { prisma } from "@/lib/prisma";
+import { CHURCH_NAME, CONTACT, SERVICE_TIMES } from "@/lib/site";
 import { registerVisitorAction } from "@/lib/visitors/actions";
 
 type VisitPageProps = {
@@ -24,13 +26,26 @@ export default async function VisitPage(props: VisitPageProps) {
         prisma.campus.findMany({ orderBy: { name: "asc" } }),
         prisma.group.findMany({
           where: { type: GroupType.MINISTRY },
-          orderBy: { name: "asc" },
+          orderBy: [{ clusterName: "asc" }, { name: "asc" }],
+          select: { id: true, name: true, clusterName: true },
         }),
       ]);
       return { campuses, ministries };
     },
     { campuses: [], ministries: [] },
   );
+
+  const ministryClusters =
+    ministries.length > 0
+      ? groupMinistriesByCluster(ministries)
+      : MINISTRY_CLUSTERS.map((cluster) => ({
+          title: cluster.title,
+          ministries: cluster.ministries.map((name) => ({
+            id: name,
+            name,
+            clusterName: cluster.title,
+          })),
+        }));
 
   return (
     <PageShell
@@ -228,10 +243,14 @@ export default async function VisitPage(props: VisitPageProps) {
                 className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <option value="">Not sure yet</option>
-                {ministries.map((ministry) => (
-                  <option key={ministry.id} value={ministry.name}>
-                    {ministry.name}
-                  </option>
+                {ministryClusters.map((cluster) => (
+                  <optgroup key={cluster.title} label={cluster.title}>
+                    {cluster.ministries.map((ministry) => (
+                      <option key={ministry.id} value={ministry.name}>
+                        {ministry.name}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
