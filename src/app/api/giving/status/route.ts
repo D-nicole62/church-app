@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { LIPILA_STATUS_URL, type CollectionStatus } from "@/lib/lipila";
 import {
+  recordCancelledLipilaFromStatus,
   recordFailedLipilaFromStatus,
   recordSuccessfulLipilaFromStatus,
 } from "@/lib/finance/record";
@@ -82,6 +83,7 @@ export async function GET(request: Request) {
     try {
       await recordSuccessfulLipilaFromStatus(statusPayload);
       await recordFailedLipilaFromStatus(statusPayload);
+      await recordCancelledLipilaFromStatus(statusPayload);
     } catch {
       // Finance recording must not block status checks for the Give UI.
     }

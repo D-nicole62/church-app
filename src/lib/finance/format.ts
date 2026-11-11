@@ -22,4 +22,5 @@ export const STATUS_LABELS: Record<string, string> = {
   PENDING: "Pending",
   SUCCESSFUL: "Successful",
   FAILED: "Failed",
+  CANCELLED: "Cancelled",
 };

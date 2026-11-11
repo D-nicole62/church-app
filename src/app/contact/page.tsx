@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PhoneField } from "@/components/forms/PhoneField";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,6 +45,12 @@ export default function ContactPage() {
               </label>
               <Input type="email" name="email" />
             </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground/80">
+              Phone
+            </label>
+            <PhoneField />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground/80">

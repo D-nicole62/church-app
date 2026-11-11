@@ -1,3 +1,4 @@
+import { PhoneField } from "@/components/forms/PhoneField";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,6 +75,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
         startsAt: new Date(event.starts_at),
         endsAt: event.ends_at ? new Date(event.ends_at) : null,
         location: event.location,
+        imageUrl: event.image_url ?? null,
         isFeatured: event.is_featured,
         campusId: null,
         createdAt: new Date(event.created_at),
@@ -120,6 +122,13 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
           Thanks for your RSVP. We look forward to seeing you.
         </div>
       )}
+      {params?.error === "invalid-phone" || params?.error === "invalid-email" ? (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
+          {params.error === "invalid-phone"
+            ? "Enter a valid phone number (e.g. 0971234567)."
+            : "Enter a valid email address."}
+        </div>
+      ) : null}
 
       <section className="space-y-6">
         <div>
@@ -155,6 +164,14 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                     ) : undefined
                   }
                 >
+                  {event.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={event.imageUrl}
+                      alt=""
+                      className="mb-3 h-44 w-full rounded-xl object-cover"
+                    />
+                  ) : null}
                   <p>{event.description}</p>
                   {prismaEvents && (
                     <form action={rsvpToEventAction} className="mt-4 space-y-2 border-t border-border pt-4">
@@ -166,7 +183,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                         <Input name="firstName" placeholder="First name" required />
                         <Input name="lastName" placeholder="Last name" required />
                         <Input type="email" name="email" placeholder="Email" />
-                        <Input type="tel" name="phone" placeholder="Phone" />
+                        <PhoneField placeholder="0971234567" />
                       </div>
                       <Button type="submit" variant="secondary">
                         I&apos;ll be there
@@ -199,6 +216,14 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                     </div>
                   }
                 >
+                  {event.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={event.imageUrl}
+                      alt=""
+                      className="mb-3 h-32 w-full rounded-xl object-cover"
+                    />
+                  ) : null}
                   <p className="line-clamp-2 text-ellipsis">
                     {event.description}
                   </p>

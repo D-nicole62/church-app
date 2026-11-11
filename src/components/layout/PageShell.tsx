@@ -1,6 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import Link from "next/link";
 import { ChurchLogo } from "@/components/layout/ChurchLogo";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 import {
   CHURCH_NAME,
   CONTACT,
@@ -15,46 +15,10 @@ type PageShellProps = PropsWithChildren<{
   className?: string;
 }>;
 
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/visit", label: "Plan Your Visit" },
-  { href: "/events", label: "Events" },
-  { href: "/sermons", label: "Sermons" },
-  { href: "/groups", label: "Groups" },
-  { href: "/children", label: "Children's Church" },
-  { href: "/missions", label: "Missions" },
-  { href: "/give", label: "Give" },
-  { href: "/contact", label: "Contact" },
-];
-
 export function PageShell({ hero, className, children }: PageShellProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-card to-muted text-foreground">
-      <header className="border-b border-border bg-card/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-1 py-2 sm:px-6">
-          <Link
-            href="/"
-            className="flex min-w-0 items-center gap-1 rounded-lg outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring sm:gap-3"
-          >
-            <ChurchLogo variant="header" priority className="-ml-4 sm:-ml-2" />
-            <span className="hidden max-w-[14rem] text-[11px] leading-snug text-muted-foreground xl:inline">
-              A perfect place for imperfect people to meet a perfect Christ
-            </span>
-          </Link>
-          <nav className="hidden gap-2 text-xs font-medium text-muted-foreground md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-md px-2 py-1 text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       {hero && (
         <section className="border-b border-border bg-gradient-to-r from-hero-from via-hero-via to-hero-to text-white">

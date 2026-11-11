@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { parseChurchDateTimeLocal } from "@/lib/events/datetime";
+import { saveUploadedImage } from "@/lib/notifications/images";
 import { prisma } from "@/lib/prisma";
+import { isValidEmail, isValidZambianPhone } from "@/lib/validation/contact";
 
 function eventFormData(formData: FormData) {
   const startsAtRaw = formData.get("startsAt")?.toString().trim() ?? "";
@@ -20,17 +22,35 @@ function eventFormData(formData: FormData) {
   };
 }
 
+async function uploadedEventImage(formData: FormData, returnPath: string) {
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) {
+    return null;
+  }
+
+  try {
+    return await saveUploadedImage(file, "events");
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Could not upload the image.";
+    redirect(`${returnPath}?error=invalid-image&detail=${encodeURIComponent(message)}`);
+  }
+}
+
 export async function createEventAction(formData: FormData) {
   const data = eventFormData(formData);
   if (!data.title || !data.startsAt) {
     redirect("/admin/events/new?error=missing-required");
   }
 
+  const imageUrl = await uploadedEventImage(formData, "/admin/events/new");
+
   await prisma.event.create({
     data: {
       title: data.title,
       description: data.description,
       location: data.location,
+      imageUrl,
       campusId: data.campusId,
       isFeatured: data.isFeatured,
       startsAt: data.startsAt,
@@ -49,12 +69,17 @@ export async function updateEventAction(eventId: string, formData: FormData) {
     redirect(`/admin/events/${eventId}?error=missing-required`);
   }
 
+  const uploaded = await uploadedEventImage(formData, `/admin/events/${eventId}`);
+  const removeImage = formData.get("removeImage") === "on";
+  const imageUrl = uploaded ?? (removeImage ? null : undefined);
+
   await prisma.event.update({
     where: { id: eventId },
     data: {
       title: data.title,
       description: data.description,
       location: data.location,
+      ...(imageUrl !== undefined ? { imageUrl } : {}),
       campusId: data.campusId,
       isFeatured: data.isFeatured,
       startsAt: data.startsAt,
@@ -83,6 +108,14 @@ export async function rsvpToEventAction(formData: FormData) {
 
   if (!eventId || !firstName || !lastName || (!email && !phone)) {
     redirect("/events?error=rsvp-invalid");
+  }
+
+  if (phone && !isValidZambianPhone(phone)) {
+    redirect("/events?error=invalid-phone");
+  }
+
+  if (email && !isValidEmail(email)) {
+    redirect("/events?error=invalid-email");
   }
 
   await prisma.$transaction(async (tx) => {

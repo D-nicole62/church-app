@@ -73,6 +73,22 @@ export function NotificationComposer({
 
       <div>
         <label className="mb-1 block text-xs font-medium text-foreground/80">
+          Image
+        </label>
+        <input
+          type="file"
+          name="image"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="block w-full text-sm text-foreground file:mr-3 file:rounded-full file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium"
+        />
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Optional. JPG, PNG, WEBP, or GIF up to 2 MB. Email shows the picture;
+          SMS includes a link to it.
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-foreground/80">
           Message
         </label>
         <Textarea

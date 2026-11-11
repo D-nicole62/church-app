@@ -64,6 +64,7 @@ enum TransactionStatus {
   PENDING
   SUCCESSFUL
   FAILED
+  CANCELLED
 }
 
 enum NotificationChannel {
@@ -154,7 +155,8 @@ model Person {
   campusId         String?
   campus           Campus?           @relation(fields: [campusId], references: [id])
   householdId      String?
-  household        Household?        @relation(fields: [householdId], references: [id])
+  household        Household?        @relation(fields: [householdId], references: [id], onDelete: SetNull)
+  householdRole    String?
   groupMemberships GroupMembership[]
   member           Member?
   visitor          Visitor?
@@ -207,6 +209,7 @@ model Member {
   cellGroup        Group?   @relation("MemberCellGroup", fields: [cellGroupId], references: [id])
   ministryGroupId  String?
   ministryGroup    Group?   @relation("MemberMinistry", fields: [ministryGroupId], references: [id])
+  baptismDate      DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -255,6 +258,7 @@ model Event {
   startsAt    DateTime
   endsAt      DateTime?
   location    String?
+  imageUrl    String?
   isFeatured  Boolean     @default(false)
   campusId    String?
   campus      Campus?     @relation(fields: [campusId], references: [id])
@@ -342,6 +346,7 @@ model NotificationLog {
   recipient    String
   subject      String?
   body         String
+  imageUrl     String?
   entityType   String?
   entityId     String?
   visitorId    String?
@@ -349,6 +354,23 @@ model NotificationLog {
   errorMessage String?
   sentAt       DateTime?
   createdAt    DateTime            @default(now())
+}
+
+enum SermonMediaType {
+  AUDIO
+  VIDEO
+}
+
+model Sermon {
+  id          String          @id @default(cuid())
+  title       String
+  speaker     String?
+  date        DateTime
+  description String?
+  mediaType   SermonMediaType
+  mediaUrl    String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 model VisitorReminderLog {

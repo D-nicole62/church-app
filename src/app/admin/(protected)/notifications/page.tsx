@@ -22,11 +22,7 @@ export default async function AdminNotificationsPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="Phase 7"
-        title="Notifications"
-        description="Shared email/SMS delivery log. Event and group sends are triggered from their admin pages. Visitor auto-reminders run daily via cron."
-      />
+      <AdminPageHeader eyebrow="Phase 7" title="Notifications" />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card header={<p className="text-sm font-medium">Sent</p>}>
@@ -37,9 +33,11 @@ export default async function AdminNotificationsPage() {
         </Card>
         <Card header={<p className="text-sm font-medium">Skipped</p>}>
           <p className="text-3xl font-semibold text-foreground">{skippedCount}</p>
+          {/*
           <p className="mt-1 text-xs text-muted-foreground">
             Usually means email/SMS provider keys are not configured yet.
           </p>
+          */}
         </Card>
       </div>
 
@@ -50,10 +48,6 @@ export default async function AdminNotificationsPage() {
           <li>Returned visitor (status: Returning)</li>
           <li>Interested / returning but not in a cell group</li>
         </ul>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Cron path: <code className="font-mono">/api/cron/visitor-reminders</code>{" "}
-          (daily 07:00 UTC on Vercel when deployed with CRON_SECRET).
-        </p>
       </Card>
 
       <Card header={<p className="text-sm font-medium">Recent deliveries</p>}>
@@ -68,6 +62,7 @@ export default async function AdminNotificationsPage() {
                   <th className="px-2 py-2">Kind</th>
                   <th className="px-2 py-2">Channel</th>
                   <th className="px-2 py-2">Recipient</th>
+                  <th className="px-2 py-2">Image</th>
                   <th className="px-2 py-2">Status</th>
                 </tr>
               </thead>
@@ -82,6 +77,20 @@ export default async function AdminNotificationsPage() {
                     </td>
                     <td className="px-2 py-3">{entry.channel}</td>
                     <td className="px-2 py-3 font-mono text-xs">{entry.recipient}</td>
+                    <td className="px-2 py-3">
+                      {entry.imageUrl ? (
+                        <a href={entry.imageUrl} target="_blank" rel="noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={entry.imageUrl}
+                            alt=""
+                            className="h-12 w-12 rounded-md object-cover"
+                          />
+                        </a>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="px-2 py-3">
                       {STATUS_LABELS[entry.status] ?? entry.status}
                       {entry.errorMessage ? (

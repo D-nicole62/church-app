@@ -9,6 +9,7 @@ export type EmailPayload = {
   to: string;
   subject: string;
   body: string;
+  imageUrl?: string | null;
 };
 
 export type SmsPayload = {

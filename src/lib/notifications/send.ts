@@ -5,6 +5,7 @@ import {
 } from "@/generated/prisma/client";
 import { isDatabaseConfigured } from "@/lib/db";
 import { sendEmail } from "@/lib/notifications/email";
+import { absoluteNotificationImageUrl } from "@/lib/notifications/images";
 import { sendSms } from "@/lib/notifications/sms";
 import { prisma } from "@/lib/prisma";
 
@@ -14,6 +15,7 @@ export type DeliverNotificationInput = {
   recipient: string;
   subject?: string;
   body: string;
+  imageUrl?: string | null;
   entityType?: string;
   entityId?: string;
   visitorId?: string;
@@ -32,6 +34,7 @@ export async function deliverNotification(input: DeliverNotificationInput) {
       recipient: input.recipient,
       subject: input.subject,
       body: input.body,
+      imageUrl: input.imageUrl,
       entityType: input.entityType,
       entityId: input.entityId,
       visitorId: input.visitorId,
@@ -44,8 +47,14 @@ export async function deliverNotification(input: DeliverNotificationInput) {
           to: input.recipient,
           subject: input.subject || "TOD Assembly",
           body: input.body,
+          imageUrl: input.imageUrl,
         })
-      : await sendSms({ to: input.recipient, body: input.body });
+      : await sendSms({
+          to: input.recipient,
+          body: input.imageUrl
+            ? `${input.body}\n${absoluteNotificationImageUrl(input.imageUrl)}`
+            : input.body,
+        });
 
   const status = result.ok
     ? NotificationStatus.SENT

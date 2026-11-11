@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import { DeleteEventButton } from "@/components/admin/DeleteEventButton";
+import { EventImageField } from "@/components/admin/EventImageField";
 import { NotificationComposer } from "@/components/admin/NotificationComposer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,7 +18,7 @@ import { prisma } from "@/lib/prisma";
 
 type EventDetailPageProps = {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ error?: string; success?: string }>;
+  searchParams?: Promise<{ error?: string; success?: string; detail?: string }>;
 };
 
 function toLocalInputValue(date: Date) {
@@ -57,6 +58,11 @@ export default async function EventDetailPage({
       {query.error === "missing-message" ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           Please enter a message before sending.
+        </p>
+      ) : null}
+      {query.error === "invalid-image" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {query.detail || "The image could not be uploaded."}
         </p>
       ) : null}
       {query.error === "no-recipients" ? (
@@ -102,6 +108,7 @@ export default async function EventDetailPage({
             />
           </div>
           <Input name="location" defaultValue={event.location ?? ""} />
+          <EventImageField currentUrl={event.imageUrl} />
           <AdminSelect name="campusId" defaultValue={event.campusId ?? ""}>
             <option value="">All campuses</option>
             {lookups.campuses.map((campus) => (

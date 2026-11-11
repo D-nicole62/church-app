@@ -19,7 +19,7 @@ import { prisma } from "@/lib/prisma";
 
 type GroupDetailPageProps = {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ error?: string; success?: string }>;
+  searchParams?: Promise<{ error?: string; success?: string; detail?: string }>;
 };
 
 export default async function GroupDetailPage({
@@ -56,6 +56,11 @@ export default async function GroupDetailPage({
       {query.error === "missing-message" ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           Please enter a message before sending.
+        </p>
+      ) : null}
+      {query.error === "invalid-image" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {query.detail || "The image could not be uploaded."}
         </p>
       ) : null}
       {query.error === "no-recipients" ? (

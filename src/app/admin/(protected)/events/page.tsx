@@ -56,6 +56,7 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="px-2 py-2">Image</th>
                   <th className="px-2 py-2">Title</th>
                   <th className="px-2 py-2">Starts</th>
                   <th className="px-2 py-2">RSVPs</th>
@@ -65,6 +66,18 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
               <tbody>
                 {events.map((event) => (
                   <tr key={event.id} className="border-b border-border/60">
+                    <td className="px-2 py-3">
+                      {event.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={event.imageUrl}
+                          alt=""
+                          className="h-12 w-12 rounded-md object-cover"
+                        />
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="px-2 py-3 font-medium">{event.title}</td>
                     <td className="px-2 py-3 text-muted-foreground">
                       {event.startsAt.toLocaleString()}

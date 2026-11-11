@@ -2,9 +2,15 @@ import Link from "next/link";
 import { GivingForm } from "@/components/giving/GivingForm";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
+import { getPaymentTimeoutSeconds } from "@/lib/lipila";
 import { CHURCH_NAME, CONTACT } from "@/lib/site";
 
-export default function GivePage() {
+type GivePageProps = {
+  searchParams?: Promise<{ status?: string; referenceId?: string }>;
+};
+
+export default async function GivePage({ searchParams }: GivePageProps) {
+  const params = (await searchParams) ?? {};
   return (
     <PageShell
       hero={
@@ -38,7 +44,11 @@ export default function GivePage() {
           approve. Card payments use a secure hosted page—we never store your
           card details.
         </p>
-        <GivingForm />
+        <GivingForm
+          paymentTimeoutSeconds={getPaymentTimeoutSeconds()}
+          returnStatus={params.status}
+          returnReferenceId={params.referenceId}
+        />
       </Card>
 
       <div className="space-y-4">

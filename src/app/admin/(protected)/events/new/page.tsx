@@ -1,4 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { EventImageField } from "@/components/admin/EventImageField";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,7 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAdminLookups } from "@/lib/admin/lookups";
 import { createEventAction } from "@/lib/events/actions";
 
-export default async function NewEventPage() {
+type NewEventPageProps = {
+  searchParams?: Promise<{ error?: string; detail?: string }>;
+};
+
+export default async function NewEventPage({ searchParams }: NewEventPageProps) {
+  const query = (await searchParams) ?? {};
   const { campuses } = await getAdminLookups();
   const dbUnavailable = campuses.length === 0;
 
@@ -25,6 +31,11 @@ export default async function NewEventPage() {
           an event without selecting a campus.
         </p>
       ) : null}
+      {query.error === "invalid-image" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {query.detail || "The image could not be uploaded."}
+        </p>
+      ) : null}
       <Card header={<p className="text-sm font-medium">Event details</p>}>
         <form action={createEventAction} className="space-y-4">
           <Input name="title" placeholder="Event title" required />
@@ -34,6 +45,7 @@ export default async function NewEventPage() {
             <Input type="datetime-local" name="endsAt" />
           </div>
           <Input name="location" placeholder="Location" />
+          <EventImageField />
           <AdminSelect name="campusId" defaultValue="">
             <option value="">All campuses</option>
             {campuses.map((campus) => (

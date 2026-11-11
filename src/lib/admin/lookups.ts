@@ -32,7 +32,7 @@ export async function getAdminLookups() {
           where: { type: GroupType.MINISTRY },
           orderBy: [{ clusterName: "asc" }, { name: "asc" }],
         }),
-        prisma.household.findMany({ orderBy: { name: "asc" }, take: 100 }),
+        prisma.household.findMany({ orderBy: { name: "asc" } }),
         prisma.person.findMany({
           orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
           take: 200,

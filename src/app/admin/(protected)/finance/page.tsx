@@ -18,7 +18,6 @@ export default async function AdminFinancePage() {
       <AdminPageHeader
         eyebrow="Phase 6"
         title="Finance"
-        description="Lipila online giving, manual cash/in-person entries, and Sage sync queue."
         action={
           <Link href="/admin/finance/new">
             <Button>Record giving</Button>
@@ -37,9 +36,11 @@ export default async function AdminFinancePage() {
         </Card>
         <Card header={<p className="text-sm font-medium">Sage sync queue</p>}>
           <p className="text-3xl font-semibold text-foreground">{syncPending}</p>
+          {/*
           <p className="mt-1 text-xs text-muted-foreground">
             Pending rows until Sage API credentials are supplied.
           </p>
+          */}
         </Card>
       </div>
 

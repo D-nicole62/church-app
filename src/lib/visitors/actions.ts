@@ -9,6 +9,7 @@ import {
 import { isDatabaseConfigured } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 import { supabase } from "@/lib/supabase";
+import { isValidEmail, isValidZambianPhone } from "@/lib/validation/contact";
 
 function optionalId(value: string | null) {
   return value && value.length > 0 ? value : null;
@@ -117,6 +118,14 @@ export async function registerVisitorAction(formData: FormData) {
 
   if (!data.firstName || !data.lastName || (!data.email && !data.phone)) {
     redirect("/visit?error=missing-required");
+  }
+
+  if (data.phone && !isValidZambianPhone(data.phone)) {
+    redirect("/visit?error=invalid-phone");
+  }
+
+  if (data.email && !isValidEmail(data.email)) {
+    redirect("/visit?error=invalid-email");
   }
 
   const dateOfBirth = parseOptionalDate(data.dateOfBirthRaw);

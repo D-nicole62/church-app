@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  classifyCollectionStatus,
   DEFAULT_COUNTRY,
   DEFAULT_CURRENCY,
   formatGivingNarration,
@@ -19,7 +20,14 @@ import {
 import { cn } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 4_000;
-const POLL_TIMEOUT_MS = 2 * 60_000; // 2 minutes
+const PENDING_PAYMENT_KEY = "tod-giving-pending";
+
+type PendingPayment = {
+  reference: string;
+  phone: string;
+  startedAt: number;
+  timeoutMs: number;
+};
 
 type Status =
   | { kind: "idle" }
@@ -29,7 +37,6 @@ type Status =
       reference: string;
       phone: string;
       message?: string;
-      timedOut?: boolean;
     }
   | {
       kind: "momo-success";
@@ -38,6 +45,12 @@ type Status =
     }
   | {
       kind: "momo-failed";
+      reference: string;
+      message: string;
+      timedOut?: boolean;
+    }
+  | {
+      kind: "momo-cancelled";
       reference: string;
       message: string;
     }
@@ -69,7 +82,18 @@ function formatAmount(amount?: number, currency = DEFAULT_CURRENCY) {
   }
 }
 
-export function GivingForm() {
+type GivingFormProps = {
+  paymentTimeoutSeconds: number;
+  returnStatus?: string;
+  returnReferenceId?: string;
+};
+
+export function GivingForm({
+  paymentTimeoutSeconds,
+  returnStatus,
+  returnReferenceId,
+}: GivingFormProps) {
+  const paymentTimeoutMs = Math.max(30, paymentTimeoutSeconds) * 1000;
   const [type, setType] = useState<GivingType>("momo");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
@@ -99,6 +123,64 @@ export function GivingForm() {
     }
   }, []);
 
+  const clearPendingPayment = useCallback(() => {
+    try {
+      sessionStorage.removeItem(PENDING_PAYMENT_KEY);
+    } catch {
+      // Ignore storage failures (private mode).
+    }
+  }, []);
+
+  const rememberPendingPayment = useCallback(
+    (reference: string, phoneNumber: string) => {
+      const pending: PendingPayment = {
+        reference,
+        phone: phoneNumber,
+        startedAt: Date.now(),
+        timeoutMs: paymentTimeoutMs,
+      };
+      try {
+        sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(pending));
+      } catch {
+        // Ignore storage failures.
+      }
+    },
+    [paymentTimeoutMs],
+  );
+
+  const closeSession = useCallback(
+    async (
+      reference: string,
+      outcome: "timeout" | "cancelled" | "failed",
+      message: string,
+    ) => {
+      stopPolling();
+      clearPendingPayment();
+      try {
+        await fetch("/api/giving/outcome", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ referenceId: reference, outcome }),
+        });
+      } catch {
+        // The UI still leaves the pending session even if recording fails.
+      }
+
+      if (outcome === "cancelled") {
+        setStatus({ kind: "momo-cancelled", reference, message });
+        return;
+      }
+
+      setStatus({
+        kind: "momo-failed",
+        reference,
+        message,
+        timedOut: outcome === "timeout",
+      });
+    },
+    [clearPendingPayment, stopPolling],
+  );
+
   useEffect(() => {
     return () => stopPolling();
   }, [stopPolling]);
@@ -114,18 +196,13 @@ export function GivingForm() {
           error?: string;
         };
 
-        // Network-ish failure from our proxy — keep polling until timeout.
         if (!res.ok) {
           if (Date.now() >= pollDeadlineRef.current) {
-            setStatus({
-              kind: "momo-pending",
+            await closeSession(
               reference,
-              phone: phoneNumber,
-              message:
-                json.error ||
-                "We couldn't confirm your payment yet. Please check your transaction history.",
-              timedOut: true,
-            });
+              "timeout",
+              "Payment failed / timed out. No gift was recorded.",
+            );
             return;
           }
           pollTimerRef.current = setTimeout(
@@ -135,34 +212,37 @@ export function GivingForm() {
           return;
         }
 
-        const statusValue = (json.status || "").toLowerCase();
-        if (statusValue === "successful") {
+        const outcome = classifyCollectionStatus(json.status);
+        if (outcome === "successful") {
           stopPolling();
+          clearPendingPayment();
           setStatus({ kind: "momo-success", reference, details: json });
           return;
         }
-        if (statusValue === "failed") {
-          stopPolling();
-          setStatus({
-            kind: "momo-failed",
+        if (outcome === "cancelled") {
+          await closeSession(
             reference,
-            message:
-              json.message ||
-              "The payment did not go through. Please try again.",
-          });
+            "cancelled",
+            json.message || "Payment cancelled. No gift was recorded.",
+          );
+          return;
+        }
+        if (outcome === "failed") {
+          await closeSession(
+            reference,
+            "failed",
+            json.message ||
+              "Payment failed. The payment was declined and no gift was recorded.",
+          );
           return;
         }
 
-        // Still pending — re-schedule until deadline.
         if (Date.now() >= pollDeadlineRef.current) {
-          setStatus({
-            kind: "momo-pending",
+          await closeSession(
             reference,
-            phone: phoneNumber,
-            message:
-              "Still waiting for confirmation. You can close this page if you've completed the prompt — we'll receive the update.",
-            timedOut: true,
-          });
+            "timeout",
+            "Payment failed / timed out. No gift was recorded.",
+          );
           return;
         }
         pollTimerRef.current = setTimeout(
@@ -171,14 +251,11 @@ export function GivingForm() {
         );
       } catch {
         if (Date.now() >= pollDeadlineRef.current) {
-          setStatus({
-            kind: "momo-pending",
+          await closeSession(
             reference,
-            phone: phoneNumber,
-            message:
-              "We couldn't confirm your payment in time. Please check back later.",
-            timedOut: true,
-          });
+            "timeout",
+            "Payment failed / timed out. No gift was recorded.",
+          );
           return;
         }
         pollTimerRef.current = setTimeout(
@@ -187,12 +264,12 @@ export function GivingForm() {
         );
       }
     },
-    [stopPolling],
+    [clearPendingPayment, closeSession, stopPolling],
   );
 
-  function startPolling(reference: string, phoneNumber: string) {
+  function startPolling(reference: string, phoneNumber: string, startedAt = Date.now()) {
     stopPolling();
-    pollDeadlineRef.current = Date.now() + POLL_TIMEOUT_MS;
+    pollDeadlineRef.current = startedAt + paymentTimeoutMs;
     pollTimerRef.current = setTimeout(
       () => pollStatus(reference, phoneNumber),
       POLL_INTERVAL_MS,
@@ -201,8 +278,58 @@ export function GivingForm() {
 
   function resetStatus() {
     stopPolling();
+    clearPendingPayment();
     setStatus({ kind: "idle" });
   }
+
+  useEffect(() => {
+    const returned = returnStatus?.toLowerCase();
+    if (returned === "cancelled" && returnReferenceId) {
+      void closeSession(
+        returnReferenceId,
+        "cancelled",
+        "Payment cancelled. No gift was recorded.",
+      );
+      return;
+    }
+
+    if (returned === "success" && returnReferenceId) {
+      rememberPendingPayment(returnReferenceId, "");
+      setStatus({
+        kind: "momo-pending",
+        reference: returnReferenceId,
+        phone: "",
+        message: "Checking whether the card payment was completed…",
+      });
+      startPolling(returnReferenceId, "");
+      return;
+    }
+
+    try {
+      const raw = sessionStorage.getItem(PENDING_PAYMENT_KEY);
+      if (!raw) return;
+      const pending = JSON.parse(raw) as PendingPayment;
+      if (!pending.reference || !pending.startedAt) return;
+      if (Date.now() >= pending.startedAt + pending.timeoutMs) {
+        void closeSession(
+          pending.reference,
+          "timeout",
+          "Payment failed / timed out. No gift was recorded.",
+        );
+        return;
+      }
+      setStatus({
+        kind: "momo-pending",
+        reference: pending.reference,
+        phone: pending.phone,
+      });
+      startPolling(pending.reference, pending.phone, pending.startedAt);
+    } catch {
+      // Ignore unreadable session storage.
+    }
+    // Resume a pending payment once when the Give page loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -257,6 +384,7 @@ export function GivingForm() {
         }
 
         const reference = json.referenceId || referenceId;
+        rememberPendingPayment(reference, phone.trim());
         setStatus({
           kind: "momo-pending",
           reference,
@@ -281,8 +409,8 @@ export function GivingForm() {
 
         const origin =
           typeof window !== "undefined" ? window.location.origin : "";
-        const redirectUrl = `${origin}/give?status=success`;
-        const backUrl = `${origin}/give?status=cancelled`;
+        const redirectUrl = `${origin}/give?status=success&referenceId=${encodeURIComponent(referenceId)}`;
+        const backUrl = `${origin}/give?status=cancelled&referenceId=${encodeURIComponent(referenceId)}`;
 
         const data: CardCollectionPayload = {
           customerInfo: {
@@ -338,16 +466,16 @@ export function GivingForm() {
             : undefined);
 
         if (redirect) {
+          rememberPendingPayment(referenceId, cardPhone.trim());
           setStatus({ kind: "card-redirect", url: redirect });
           window.location.href = redirect;
           return;
         }
 
         setStatus({
-          kind: "success",
+          kind: "error",
           message:
-            json.message ||
-            "Your card payment was initiated successfully. We'll be in touch if anything else is needed.",
+            "We couldn't open the secure card page. The payment was not completed. Please try again.",
         });
       }
     } catch (err) {
@@ -362,12 +490,10 @@ export function GivingForm() {
       return (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
           <div className="flex items-start gap-2">
-            {!status.timedOut && (
-              <span
-                aria-hidden
-                className="mt-0.5 inline-block h-3 w-3 animate-spin rounded-full border-2 border-amber-500 border-t-transparent"
-              />
-            )}
+            <span
+              aria-hidden
+              className="mt-0.5 inline-block h-3 w-3 animate-spin rounded-full border-2 border-amber-500 border-t-transparent"
+            />
             <div>
               <p className="font-medium">Approve the prompt on your phone</p>
               <p className="mt-1 text-amber-900/80 dark:text-amber-200/80">
@@ -377,15 +503,6 @@ export function GivingForm() {
               <p className="mt-1 text-[11px] text-amber-900/70 dark:text-amber-200/70">
                 Reference: <span className="font-mono">{status.reference}</span>
               </p>
-              {status.timedOut && (
-                <button
-                  type="button"
-                  onClick={() => startPolling(status.reference, status.phone)}
-                  className="mt-2 inline-flex items-center justify-center rounded-full border border-amber-300 bg-white/60 px-3 py-1 text-[11px] font-medium text-amber-900 hover:bg-white dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-100"
-                >
-                  Check again
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -428,7 +545,9 @@ export function GivingForm() {
     if (status.kind === "momo-failed") {
       return (
         <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
-          <p className="font-medium">Payment did not complete</p>
+          <p className="font-medium">
+            {status.timedOut ? "Payment failed / timed out" : "Payment failed"}
+          </p>
           <p className="mt-1">{status.message}</p>
           <p className="mt-1 text-[11px] opacity-80">
             Reference: <span className="font-mono">{status.reference}</span>
@@ -440,6 +559,33 @@ export function GivingForm() {
           >
             Try again
           </button>
+        </div>
+      );
+    }
+
+    if (status.kind === "momo-cancelled") {
+      return (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100">
+          <p className="font-medium">Payment cancelled</p>
+          <p className="mt-1">{status.message}</p>
+          <p className="mt-1 text-[11px] opacity-80">
+            Reference: <span className="font-mono">{status.reference}</span>
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={resetStatus}
+              className="inline-flex items-center justify-center rounded-full border border-amber-300 bg-white px-3 py-1 text-[11px] font-medium text-amber-950 hover:bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+            >
+              Try again
+            </button>
+            <a
+              href="/give"
+              className="inline-flex items-center justify-center rounded-full px-3 py-1 text-[11px] font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Return to Give
+            </a>
+          </div>
         </div>
       );
     }

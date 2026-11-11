@@ -1,3 +1,4 @@
+import { PhoneField } from "@/components/forms/PhoneField";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -82,7 +83,11 @@ export default async function VisitPage(props: VisitPageProps) {
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
             {error === "missing-required"
               ? "Please fill in your name and at least one way to contact you."
-              : "Something went wrong while saving your visit. Please try again."}
+              : error === "invalid-phone"
+                ? "Enter a valid phone number (e.g. 0971234567)."
+                : error === "invalid-email"
+                  ? "Enter a valid email address."
+                  : "Something went wrong while saving your visit. Please try again."}
           </div>
         )}
 
@@ -118,12 +123,7 @@ export default async function VisitPage(props: VisitPageProps) {
               <label className="mb-1 block text-xs font-medium text-foreground/80">
                 Mobile phone
               </label>
-              <Input
-                type="tel"
-                name="phone"
-                placeholder="0977 000000"
-                autoComplete="tel"
-              />
+              <PhoneField />
             </div>
           </div>
 

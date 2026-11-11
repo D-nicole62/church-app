@@ -46,3 +46,33 @@ END $$;
 ALTER TABLE "Group" DROP COLUMN IF EXISTS "regionId";
 ALTER TABLE "Person" DROP COLUMN IF EXISTS "regionId";
 ALTER TABLE "Campus" DROP COLUMN IF EXISTS "regionId";
+
+-- Giving: cancelled payments, and sermons
+ALTER TYPE "TransactionStatus" ADD VALUE IF NOT EXISTS 'CANCELLED';
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'SermonMediaType') THEN
+    CREATE TYPE "SermonMediaType" AS ENUM ('AUDIO', 'VIDEO');
+  END IF;
+END $$;
+
+ALTER TABLE "NotificationLog" ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;
+ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;
+
+-- Household role on the person, baptism date on the membership record
+ALTER TABLE "Person" ADD COLUMN IF NOT EXISTS "householdRole" TEXT;
+ALTER TABLE "Member" ADD COLUMN IF NOT EXISTS "baptismDate" TIMESTAMP(3);
+
+CREATE TABLE IF NOT EXISTS "Sermon" (
+  "id" TEXT NOT NULL,
+  "title" TEXT NOT NULL,
+  "speaker" TEXT,
+  "date" TIMESTAMP(3) NOT NULL,
+  "description" TEXT,
+  "mediaType" "SermonMediaType" NOT NULL,
+  "mediaUrl" TEXT NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL,
+  CONSTRAINT "Sermon_pkey" PRIMARY KEY ("id")
+);

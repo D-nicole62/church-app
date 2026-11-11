@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 export default async function AdminMembersPage() {
   const members = await prisma.member.findMany({
     include: {
-      person: { include: { campus: true } },
+      person: { include: { campus: true, household: true } },
       cellGroup: true,
       ministryGroup: true,
     },
@@ -38,6 +38,7 @@ export default async function AdminMembersPage() {
                   <th className="px-2 py-2">Number</th>
                   <th className="px-2 py-2">Name</th>
                   <th className="px-2 py-2">Campus</th>
+                  <th className="px-2 py-2">Household</th>
                   <th className="px-2 py-2">Cell group</th>
                   <th className="px-2 py-2" />
                 </tr>
@@ -53,6 +54,9 @@ export default async function AdminMembersPage() {
                     </td>
                     <td className="px-2 py-3 text-muted-foreground">
                       {member.person.campus?.name ?? "—"}
+                    </td>
+                    <td className="px-2 py-3 text-muted-foreground">
+                      {member.person.household?.name ?? "—"}
                     </td>
                     <td className="px-2 py-3 text-muted-foreground">
                       {member.cellGroup?.name ?? "—"}

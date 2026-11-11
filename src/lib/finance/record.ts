@@ -5,7 +5,7 @@ import {
 } from "@/generated/prisma/client";
 import { isDatabaseConfigured } from "@/lib/db";
 import { queueSageSync } from "@/lib/integrations/sage";
-import type { CollectionStatus } from "@/lib/lipila";
+import { classifyCollectionStatus, type CollectionStatus } from "@/lib/lipila";
 import { prisma } from "@/lib/prisma";
 
 type PendingLipilaInput = {
@@ -132,12 +132,64 @@ export async function recordFailedLipilaFromStatus(status: CollectionStatus) {
     return null;
   }
 
-  if ((status.status || "").toLowerCase() !== "failed") {
+  const outcome = classifyCollectionStatus(status.status);
+  if (outcome !== "failed") {
     return null;
   }
 
   return prisma.financeTransaction.updateMany({
-    where: { referenceId: status.referenceId },
+    where: {
+      referenceId: status.referenceId,
+      status: { not: TransactionStatus.SUCCESSFUL },
+    },
     data: { status: TransactionStatus.FAILED },
+  });
+}
+
+export async function recordCancelledLipilaFromStatus(status: CollectionStatus) {
+  if (!isDatabaseConfigured() || !status.referenceId) {
+    return null;
+  }
+
+  if (classifyCollectionStatus(status.status) !== "cancelled") {
+    return null;
+  }
+
+  return prisma.financeTransaction.updateMany({
+    where: {
+      referenceId: status.referenceId,
+      status: { not: TransactionStatus.SUCCESSFUL },
+    },
+    data: { status: TransactionStatus.CANCELLED },
+  });
+}
+
+export async function closeLipilaPaymentSession(
+  referenceId: string,
+  outcome: "timeout" | "cancelled" | "failed",
+) {
+  if (!isDatabaseConfigured() || !referenceId.trim()) {
+    return null;
+  }
+
+  const status =
+    outcome === "cancelled"
+      ? TransactionStatus.CANCELLED
+      : TransactionStatus.FAILED;
+
+  return prisma.financeTransaction.updateMany({
+    where: {
+      referenceId,
+      status: { not: TransactionStatus.SUCCESSFUL },
+    },
+    data: {
+      status,
+      notes:
+        outcome === "timeout"
+          ? "Payment timed out before confirmation."
+          : outcome === "cancelled"
+            ? "Payment cancelled by the payer."
+            : "Payment failed.",
+    },
   });
 }

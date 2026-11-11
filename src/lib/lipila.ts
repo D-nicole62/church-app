@@ -62,6 +62,46 @@ export type GivingRequestBody =
 
 export type CollectionStatusValue = "Pending" | "Successful" | "Failed" | string;
 
+const DEFAULT_PAYMENT_TIMEOUT_SECONDS = 180;
+
+/** How long a started payment may stay pending before it is marked failed. */
+export function getPaymentTimeoutSeconds() {
+  const raw = Number(process.env.PAYMENT_TIMEOUT_SECONDS);
+  if (Number.isFinite(raw) && raw >= 30 && raw <= 900) {
+    return Math.round(raw);
+  }
+  return DEFAULT_PAYMENT_TIMEOUT_SECONDS;
+}
+
+export type PaymentOutcome = "successful" | "failed" | "cancelled" | "pending";
+
+export function classifyCollectionStatus(status: string | null | undefined): PaymentOutcome {
+  const value = (status || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (value === "successful" || value === "success" || value === "completed") {
+    return "successful";
+  }
+  if (
+    value === "cancelled" ||
+    value === "canceled" ||
+    value === "user_cancelled" ||
+    value === "user_canceled"
+  ) {
+    return "cancelled";
+  }
+  if (
+    value === "failed" ||
+    value === "failure" ||
+    value === "declined" ||
+    value === "rejected" ||
+    value === "expired" ||
+    value === "timeout" ||
+    value === "timed_out"
+  ) {
+    return "failed";
+  }
+  return "pending";
+}
+
 export type CollectionStatus = {
   referenceId: string;
   currency?: string;

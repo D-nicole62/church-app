@@ -11,6 +11,7 @@ import {
   resolveGroupAudience,
   type EventAudience,
 } from "@/lib/notifications/audience";
+import { imageUrlFromForm } from "@/lib/notifications/images";
 import { deliverBulkNotifications } from "@/lib/notifications/send";
 import { prisma } from "@/lib/prisma";
 
@@ -38,6 +39,7 @@ export async function sendEventReminderAction(
   const subject =
     formData.get("subject")?.toString().trim() || "Upcoming event reminder";
   const body = formData.get("body")?.toString().trim() ?? "";
+  const imageUrl = await readOptionalImage(formData, `/admin/events/${eventId}`);
 
   if (!body) {
     redirect(`/admin/events/${eventId}?error=missing-message`);
@@ -61,6 +63,7 @@ export async function sendEventReminderAction(
         recipient: address,
         subject,
         body: body.replace("{name}", person.name),
+        imageUrl,
         entityType: "event",
         entityId: eventId,
       },
@@ -85,6 +88,7 @@ export async function sendGroupAnnouncementAction(
   const subject =
     formData.get("subject")?.toString().trim() || "Group announcement";
   const body = formData.get("body")?.toString().trim() ?? "";
+  const imageUrl = await readOptionalImage(formData, `/admin/groups/${groupId}`);
 
   if (!body) {
     redirect(`/admin/groups/${groupId}?error=missing-message`);
@@ -108,6 +112,7 @@ export async function sendGroupAnnouncementAction(
         recipient: address,
         subject,
         body: body.replace("{name}", person.name),
+        imageUrl,
         entityType: "group",
         entityId: groupId,
       },
@@ -137,4 +142,13 @@ export async function getNotificationSummary() {
   ]);
 
   return { recent, sentCount, failedCount, skippedCount };
+}
+
+async function readOptionalImage(formData: FormData, returnPath: string) {
+  try {
+    return await imageUrlFromForm(formData);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not upload the image.";
+    redirect(`${returnPath}?error=invalid-image&detail=${encodeURIComponent(message)}`);
+  }
 }
