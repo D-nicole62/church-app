@@ -86,7 +86,7 @@ export const FACEBOOK_URL =
 
 export const YOUTUBE_URL =
   process.env.NEXT_PUBLIC_YOUTUBE_URL?.trim() ||
-  "https://www.youtube.com/@your-church-channel";
+  "https://www.youtube.com/@TabernacleofDavidAssembly";
 
 export const SITE_DESCRIPTION =
   "A Bible-believing, cell-based church in Lusaka committed to the Gospel, evangelism, and equipping saints for the Great Commission.";
