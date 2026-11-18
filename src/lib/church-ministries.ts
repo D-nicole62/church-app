@@ -1,3 +1,5 @@
+import { cellChurchSlug } from "@/lib/cell-church-structure";
+
 /** Ministry clusters and ministries (TOD Assembly org structure). */
 export const MINISTRY_CLUSTERS = [
   {
@@ -84,6 +86,14 @@ export const RETIRED_MINISTRY_GROUP_NAMES = [
   "Projects and Business Ventures",
   "Care and Counselling",
 ] as const;
+
+export function clusterAnchor(title: string) {
+  return `cluster-${cellChurchSlug(title)}`;
+}
+
+export function ministryAnchor(clusterTitle: string, ministry: string) {
+  return `ministry-${cellChurchSlug(clusterTitle)}-${cellChurchSlug(ministry)}`;
+}
 
 export function getAllMinistryNames(): string[] {
   return MINISTRY_CLUSTERS.flatMap((cluster) => [...cluster.ministries]);

@@ -1,12 +1,15 @@
 import Link from "next/link";
+import { OpenHashedDetails } from "@/components/groups/OpenHashedDetails";
 import { PageShell } from "@/components/layout/PageShell";
-import { Card } from "@/components/ui/card";
-import { CELL_CHURCH_STRUCTURE } from "@/lib/cell-church-structure";
-import { MINISTRY_CLUSTERS } from "@/lib/church-ministries";
+import {
+  CELL_CHURCH_STRUCTURE,
+  cellAnchor,
+  regionAnchor,
+} from "@/lib/cell-church-structure";
+import { MINISTRY_CLUSTERS, clusterAnchor } from "@/lib/church-ministries";
 import { CHURCH_NAME } from "@/lib/site";
 import { isDatabaseConfigured } from "@/lib/db";
 import { getPublicCellGroups } from "@/lib/groups/queries";
-import { GroupMembershipRole } from "@/generated/prisma/client";
 
 const groupsHero = (
   <div className="space-y-3">
@@ -37,62 +40,71 @@ export default async function GroupsPage() {
     loadError = true;
   }
 
+  const groupsByName = new Map(
+    cellGroups.map((group) => [group.name.trim().toLowerCase(), group]),
+  );
+
   return (
     <PageShell hero={groupsHero}>
-      <section className="space-y-4">
+      <OpenHashedDetails />
+      <section id="ministry-clusters" className="space-y-4 scroll-mt-6">
         <div>
           <h2 className="text-lg font-semibold text-foreground">
             Ministry clusters
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            How we structure ministry across the church.
+            Open a cluster to see the ministries in it.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {MINISTRY_CLUSTERS.map((cluster) => (
-            <Card
+            <details
               key={cluster.title}
-              header={
-                <p className="text-sm font-medium text-foreground">
-                  {cluster.title}
-                </p>
-              }
+              id={clusterAnchor(cluster.title)}
+              className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm"
             >
-              <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+              <summary className="cursor-pointer text-sm font-medium text-foreground">
+                {cluster.title}
+              </summary>
+              <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-muted-foreground">
                 {cluster.ministries.map((ministry) => (
                   <li key={ministry}>{ministry}</li>
                 ))}
               </ul>
-            </Card>
+            </details>
           ))}
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section id="cell-church-regions" className="space-y-4 scroll-mt-6">
         <div>
           <h2 className="text-lg font-semibold text-foreground">
             Cell church regions
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Regions, zones, and cells across {CHURCH_NAME}.
+            Open a region to see its zones and cells across {CHURCH_NAME}.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {CELL_CHURCH_STRUCTURE.regions.map((region) => (
-            <Card
+            <details
               key={region.name}
-              header={
-                <p className="text-sm font-medium text-foreground">{region.name}</p>
-              }
+              id={regionAnchor(region.name)}
+              className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm"
             >
-              <ul className="space-y-3 text-sm text-muted-foreground">
+              <summary className="cursor-pointer text-sm font-medium text-foreground">
+                {region.name}
+              </summary>
+              <ul className="mt-3 space-y-3 text-sm text-muted-foreground">
                 {region.zones.map((zone) => (
                   <li key={zone.name}>
                     <p className="font-medium text-foreground/90">{zone.name}</p>
                     {zone.cells.length > 0 ? (
                       <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1">
                         {zone.cells.map((cell) => (
-                          <li key={cell}>{cell}</li>
+                          <li key={cell}>
+                            <a href={`#${cellAnchor(region.name, cell)}`}>{cell}</a>
+                          </li>
                         ))}
                       </ul>
                     ) : (
@@ -101,93 +113,76 @@ export default async function GroupsPage() {
                   </li>
                 ))}
               </ul>
-            </Card>
+            </details>
           ))}
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section id="cell-groups" className="space-y-4 scroll-mt-6">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Cell groups</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Connect with a smaller community for fellowship and growth.
+            Open a cell group to see where it meets and who leads it.
           </p>
         </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {CELL_CHURCH_STRUCTURE.regions.flatMap((region) =>
+            region.zones.flatMap((zone) =>
+              zone.cells.map((cell) => {
+                const group = groupsByName.get(cell.trim().toLowerCase());
+                const leader = group?.memberships[0]?.person;
 
+                return (
+                  <details
+                    key={`${region.name}-${cell}`}
+                    id={cellAnchor(region.name, cell)}
+                    className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm"
+                  >
+                    <summary className="cursor-pointer text-sm font-medium text-foreground">
+                      {cell}
+                    </summary>
+                    <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+                      <p>
+                        {region.name} · {zone.name}
+                      </p>
+                      {group?.meetsWhen ? <p>{group.meetsWhen}</p> : null}
+                      {group?.location ? <p>{group.location}</p> : null}
+                      {group?.description ? <p>{group.description}</p> : null}
+                      {leader ? (
+                        <p>
+                          Led by {leader.firstName} {leader.lastName}
+                          {leader.email ? (
+                            <>
+                              {" · "}
+                              <Link
+                                href={`mailto:${leader.email}`}
+                                className="font-medium text-primary underline-offset-4 hover:underline"
+                              >
+                                Email leader
+                              </Link>
+                            </>
+                          ) : null}
+                        </p>
+                      ) : null}
+                    </div>
+                  </details>
+                );
+              }),
+            ),
+          )}
+        </div>
         {loadError ? (
           <p className="text-sm text-muted-foreground">
-            Cell groups for the upcoming season will be announced soon. In the
-            meantime, worship with us on Sundays or{" "}
+            Meeting details are unavailable right now.{" "}
             <Link
               href="/contact"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              contact us
+              Contact us
             </Link>{" "}
             to get connected.
           </p>
-        ) : cellGroups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Cell groups for the upcoming season will be announced soon. In the
-            meantime, join us on Sundays and connect through our ministry
-            clusters.
-          </p>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {cellGroups.map((group) => {
-              const leaders = group.memberships
-                .filter((m) => m.role === GroupMembershipRole.LEADER)
-                .map((m) => m.person);
-              const leader = leaders[0];
-
-              return (
-                <Card
-                  key={group.id}
-                  header={
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-foreground">
-                        {group.name}
-                      </p>
-                      <div className="space-y-0.5 text-xs text-muted-foreground">
-                        {group.zone && (
-                          <p>
-                            {group.zone.region.name} · {group.zone.name}
-                          </p>
-                        )}
-                        {group.meetsWhen && <p>{group.meetsWhen}</p>}
-                      </div>
-                    </div>
-                  }
-                  footer={
-                    group.location ? (
-                      <p className="text-xs text-muted-foreground">
-                        {group.location}
-                      </p>
-                    ) : undefined
-                  }
-                >
-                  <p>{group.description}</p>
-                  {leader && (
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      Led by {leader.firstName} {leader.lastName}
-                      {leader.email && (
-                        <>
-                          {" · "}
-                          <Link
-                            href={`mailto:${leader.email}`}
-                            className="font-medium text-primary underline-offset-4 hover:underline"
-                          >
-                            Email leader
-                          </Link>
-                        </>
-                      )}
-                    </p>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        )}
+        ) : null}
       </section>
     </PageShell>
   );

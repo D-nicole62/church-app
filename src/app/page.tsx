@@ -120,7 +120,7 @@ export default function Home() {
           }
           footer={
             <Link
-              href="/groups"
+              href="/groups#ministry-clusters"
               className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
               Ministry clusters

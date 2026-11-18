@@ -119,6 +119,22 @@ export function getCellChurchRegionNames(): string[] {
   return CELL_CHURCH_STRUCTURE.regions.map((region) => region.name);
 }
 
+export function cellChurchSlug(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function regionAnchor(name: string) {
+  return `region-${cellChurchSlug(name)}`;
+}
+
+export function cellAnchor(regionName: string, cellName: string) {
+  return `cell-${cellChurchSlug(regionName)}-${cellChurchSlug(cellName)}`;
+}
+
 /** Former cell / zone labels replaced by corrected spellings in seed. */
 export const RETIRED_CELL_CHURCH_NAMES = {
   cells: ["Gardern House Cell", "Saint Bornaventure Cell", "Living Water Cell"],
