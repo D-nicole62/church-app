@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { ChurchLogo } from "@/components/layout/ChurchLogo";
 import {
   CELL_CHURCH_STRUCTURE,
@@ -35,7 +35,7 @@ export const PUBLIC_NAV_ITEMS = [
 ] as const;
 
 const linkClass =
-  "rounded-md px-2 py-1 text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary";
+  "inline-flex min-h-11 items-center rounded-md px-2 py-2 text-xs font-medium text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary";
 
 function clusterLinks() {
   return MINISTRY_CLUSTERS.map((cluster) => ({
@@ -75,11 +75,13 @@ function DesktopDropdown({
   label,
   open,
   onToggle,
+  align = "start",
   children,
 }: {
   label: string;
   open: boolean;
   onToggle: () => void;
+  align?: "start" | "end";
   children: ReactNode;
 }) {
   const panelId = useId();
@@ -88,7 +90,7 @@ function DesktopDropdown({
     <div className="relative">
       <button
         type="button"
-        className={`${linkClass} inline-flex items-center gap-1`}
+        className={`${linkClass} gap-1`}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={onToggle}
@@ -101,7 +103,9 @@ function DesktopDropdown({
       {open ? (
         <div
           id={panelId}
-          className="absolute left-0 top-full z-40 mt-1 max-h-80 w-72 overflow-y-auto rounded-xl border border-border bg-card p-2 text-sm shadow-lg"
+          className={`absolute top-full z-40 mt-1 max-h-80 w-72 max-w-[min(18rem,calc(100vw-2rem))] overflow-y-auto rounded-xl border border-border bg-card p-2 text-sm shadow-lg ${
+            align === "end" ? "right-0" : "left-0"
+          }`}
         >
           {children}
         </div>
@@ -117,7 +121,7 @@ function ClusterMenuList() {
         <li key={cluster.href}>
           <a
             href={cluster.href}
-            className="block rounded-md px-2 py-1.5 text-foreground hover:bg-primary/10 hover:text-primary"
+            className="flex min-h-11 items-center rounded-md px-2 py-2 text-foreground hover:bg-primary/10 hover:text-primary"
           >
             {cluster.label}
           </a>
@@ -134,7 +138,7 @@ function RegionMenuList() {
         <li key={region.href}>
           <a
             href={region.href}
-            className="block rounded-md px-2 py-1.5 text-foreground hover:bg-primary/10 hover:text-primary"
+            className="flex min-h-11 items-center rounded-md px-2 py-2 text-foreground hover:bg-primary/10 hover:text-primary"
           >
             {region.label}
           </a>
@@ -158,7 +162,7 @@ function CellMenuList() {
                 <li key={cell.href}>
                   <a
                     href={cell.href}
-                    className="block rounded-md px-2 py-1.5 text-foreground hover:bg-primary/10 hover:text-primary"
+                    className="flex min-h-11 items-center rounded-md px-2 py-2 text-foreground hover:bg-primary/10 hover:text-primary"
                   >
                     {cell.label}
                   </a>
@@ -178,11 +182,13 @@ export function SiteHeader() {
   const [desktopMenu, setDesktopMenu] = useState<
     "clusters" | "regions" | "cells" | null
   >(null);
+  const [menuPath, setMenuPath] = useState(pathname);
 
-  useEffect(() => {
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
     setMenuOpen(false);
     setDesktopMenu(null);
-  }, [pathname]);
+  }
 
   function toggleDesktop(menu: "clusters" | "regions" | "cells") {
     setDesktopMenu((current) => (current === menu ? null : menu));
@@ -190,19 +196,19 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-card/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
+      <div className="mx-auto flex min-w-0 max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-1 rounded-lg outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring sm:gap-3"
+          className="flex min-w-0 items-center gap-3 rounded-lg outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ChurchLogo variant="header" priority className="-ml-1 sm:-ml-2" />
-          <span className="hidden max-w-[14rem] text-[11px] leading-snug text-muted-foreground xl:inline">
+          <ChurchLogo variant="header" />
+          <span className="hidden max-w-[14rem] text-[11px] leading-snug text-muted-foreground 2xl:inline">
             A perfect place for imperfect people to meet a perfect Christ
           </span>
         </Link>
 
         <nav
-          className="hidden flex-wrap items-center justify-end gap-1 text-xs font-medium text-muted-foreground lg:flex"
+          className="hidden min-w-0 flex-1 flex-wrap items-center justify-end gap-x-0.5 gap-y-1 text-xs font-medium text-muted-foreground lg:flex"
           aria-label="Primary"
         >
           <MenuLinks items={NAV_BEFORE_GROUPS} />
@@ -224,6 +230,7 @@ export function SiteHeader() {
             label="Cell groups"
             open={desktopMenu === "cells"}
             onToggle={() => toggleDesktop("cells")}
+            align="end"
           >
             <CellMenuList />
           </DesktopDropdown>
@@ -232,7 +239,7 @@ export function SiteHeader() {
 
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium text-foreground lg:hidden"
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium text-foreground lg:hidden"
           aria-expanded={menuOpen}
           aria-controls="mobile-primary-nav"
           onClick={() => setMenuOpen((current) => !current)}
@@ -256,7 +263,7 @@ export function SiteHeader() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary"
+                  className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary"
                 >
                   {item.label}
                 </Link>
@@ -264,7 +271,7 @@ export function SiteHeader() {
             ))}
             <li>
               <details className="rounded-lg px-3 py-2">
-                <summary className="cursor-pointer text-sm font-medium text-foreground">
+                <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-foreground">
                   Ministry clusters
                 </summary>
                 <div className="mt-2">
@@ -274,7 +281,7 @@ export function SiteHeader() {
             </li>
             <li>
               <details className="rounded-lg px-3 py-2">
-                <summary className="cursor-pointer text-sm font-medium text-foreground">
+                <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-foreground">
                   Cell church regions
                 </summary>
                 <div className="mt-2">
@@ -284,7 +291,7 @@ export function SiteHeader() {
             </li>
             <li>
               <details className="rounded-lg px-3 py-2">
-                <summary className="cursor-pointer text-sm font-medium text-foreground">
+                <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-foreground">
                   Cell groups
                 </summary>
                 <div className="mt-2 max-h-72 overflow-y-auto">
@@ -296,7 +303,7 @@ export function SiteHeader() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary"
+                  className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary"
                 >
                   {item.label}
                 </Link>

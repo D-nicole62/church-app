@@ -23,11 +23,28 @@ function parseOptionalDate(value: string | null) {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+function parseCalendarDate(value: string | null) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return null;
+  }
+  const parsed = new Date(`${value}T12:00:00.000Z`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 function visitorIntakeFromForm(formData: FormData) {
   const numberOfChildrenRaw = formData.get("numberOfChildren")?.toString().trim();
   const numberOfChildren = numberOfChildrenRaw
     ? Number.parseInt(numberOfChildrenRaw, 10)
     : null;
+  const plannedVisitDateRaw =
+    formData.get("plannedVisitDate")?.toString().trim() || null;
+  const notes = formData.get("notes")?.toString().trim() || "";
+  const notesWithPlan = [
+    notes,
+    plannedVisitDateRaw ? `Planned visit date: ${plannedVisitDateRaw}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   return {
     firstName: formData.get("firstName")?.toString().trim() ?? "",
@@ -36,6 +53,7 @@ function visitorIntakeFromForm(formData: FormData) {
     phone: formData.get("phone")?.toString().trim() || null,
     gender: formData.get("gender")?.toString().trim() || null,
     dateOfBirthRaw: formData.get("dateOfBirth")?.toString().trim() || null,
+    plannedVisitDateRaw,
     residentialArea: formData.get("residentialArea")?.toString().trim() || null,
     campusId: optionalId(formData.get("campusId")?.toString().trim() || null),
     invitedBy: formData.get("invitedBy")?.toString().trim() || null,
@@ -48,7 +66,7 @@ function visitorIntakeFromForm(formData: FormData) {
       ? null
       : numberOfChildren,
     howDidYouHear: formData.get("howDidYouHear")?.toString().trim() || null,
-    notes: formData.get("notes")?.toString().trim() || null,
+    notes: notesWithPlan || null,
   };
 }
 
@@ -77,6 +95,7 @@ async function saveVisitorToLegacySupabase(
 async function createVisitorRecord(
   data: ReturnType<typeof visitorIntakeFromForm>,
   dateOfBirth: Date | null,
+  plannedVisitDate: Date | null,
 ) {
   // Avoid prisma.$transaction — Supabase poolers can time out starting transactions (P2028).
   const person = await prisma.person.create({
@@ -97,7 +116,7 @@ async function createVisitorRecord(
         personId: person.id,
         residentialArea: data.residentialArea,
         invitedBy: data.invitedBy,
-        firstVisitDate: new Date(),
+        firstVisitDate: plannedVisitDate ?? new Date(),
         serviceAttended: data.serviceTime,
         prayerRequest: data.prayerRequest,
         interestedMinistry: data.interestedMinistry,
@@ -129,6 +148,7 @@ export async function registerVisitorAction(formData: FormData) {
   }
 
   const dateOfBirth = parseOptionalDate(data.dateOfBirthRaw);
+  const plannedVisitDate = parseCalendarDate(data.plannedVisitDateRaw);
 
   if (!isDatabaseConfigured()) {
     const saved = await saveVisitorToLegacySupabase(data);
@@ -136,7 +156,7 @@ export async function registerVisitorAction(formData: FormData) {
   }
 
   try {
-    await createVisitorRecord(data, dateOfBirth);
+    await createVisitorRecord(data, dateOfBirth, plannedVisitDate);
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.error("[registerVisitorAction]", error);

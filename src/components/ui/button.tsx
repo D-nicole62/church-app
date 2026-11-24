@@ -28,7 +28,7 @@ export function Button({
 
   return (
     <button
-      className={cn(base, variants[variant], width, "px-5 py-2.5", className)}
+      className={cn(base, variants[variant], width, "min-h-11 px-5 py-2.5", className)}
       {...props}
     />
   );

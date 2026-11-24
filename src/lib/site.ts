@@ -23,7 +23,7 @@ export const VISION =
   "One Church multiple campuses; Moving people from emptiness to fullness of life found in Christ.";
 
 export const MISSION =
-  "Tabernacle of David Assembly-City Mission Church is a Cell-Based Church whose mission is to contribute to the achievement of the Great Commission by equipping saints for the end time harvest of precious souls through the power of the Holy Spirit in partnership with strategic alliances worldwide.";
+  "Tabernacle of David Assembly-City Mission Church is a Cell-Based Church whose mission is to contribute to the achievement of the Great Commission by equipping saints for the end-time harvest of precious souls through the power of the Holy Spirit in partnership with strategic alliances worldwide.";
 
 export const WELCOME_INTRO =
   "We are delighted to welcome you to our church family and online platform.";
@@ -77,6 +77,17 @@ export const CONTACT = {
   city: "Lusaka, Zambia",
   postal: "P.O. Box 32089, Lusaka, Zambia",
 } as const;
+
+/** Street plus city, without inventing a plot number. */
+export const PUBLIC_ADDRESS = `${CONTACT.address}, Lusaka`;
+
+export const SITE_URL = "https://www.tabernacleofdavidcitymissionschurch.com";
+
+/** Resolved from the public @TabernacleofDavidAssembly channel page. */
+export const YOUTUBE_CHANNEL_ID = "UCMQ7zUtOm8K4vs6t4nkFbdw";
+
+/** Uploads playlist id is the channel id with the UC prefix replaced by UU. */
+export const YOUTUBE_UPLOADS_PLAYLIST_ID = "UUMQ7zUtOm8K4vs6t4nkFbdw";
 
 export { MINISTRY_CLUSTERS } from "@/lib/church-ministries";
 

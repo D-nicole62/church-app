@@ -88,7 +88,7 @@ export const CELL_CHURCH_STRUCTURE = {
       ],
     },
     {
-      name: "South East I",
+      name: "Southeast I",
       zones: [
         { name: "Zone 1", cells: ["Libala Zone 1 Cell 1"] },
         { name: "Zone 2", cells: ["Chilenje Zone 2 Cell 1"] },

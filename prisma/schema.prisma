@@ -382,3 +382,12 @@ model VisitorReminderLog {
 
   @@index([visitorId, reason, createdAt])
 }
+
+model ContactInquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now())
+}
