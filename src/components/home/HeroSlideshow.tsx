@@ -53,8 +53,10 @@ export function HeroSlideshow({ className }: HeroSlideshowProps) {
               alt={slide.alt}
               fill
               className="object-cover"
-              sizes="(max-width: 640px) 100vw, 420px"
+              sizes="(max-width: 1024px) 100vw, 520px"
               priority={i === 0}
+              fetchPriority={i === 0 ? "high" : "low"}
+              loading={i === 0 ? "eager" : "lazy"}
             />
           </div>
         ))}
@@ -62,24 +64,28 @@ export function HeroSlideshow({ className }: HeroSlideshowProps) {
 
       {count > 1 && (
         <>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center gap-1.5 pb-3">
+          <div className="absolute inset-x-0 bottom-0 flex justify-center">
             {heroSlides.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 aria-label={`Show slide ${i + 1}`}
                 onClick={() => setIndex(i)}
-                className={`pointer-events-auto h-2 rounded-full transition-all ${
-                  i === index ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
-                }`}
-              />
+                className="inline-flex h-11 w-11 items-center justify-center"
+              >
+                <span
+                  className={`h-2 rounded-full transition-all ${
+                    i === index ? "w-6 bg-white" : "w-2 bg-white/50"
+                  }`}
+                />
+              </button>
             ))}
           </div>
           <button
             type="button"
             aria-label="Previous slide"
             onClick={() => go(-1)}
-            className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-black/35 px-2 py-3 text-white backdrop-blur-sm transition hover:bg-black/50 sm:block"
+            className="absolute left-1 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-2xl text-white backdrop-blur-sm transition hover:bg-black/50"
           >
             ‹
           </button>
@@ -87,7 +93,7 @@ export function HeroSlideshow({ className }: HeroSlideshowProps) {
             type="button"
             aria-label="Next slide"
             onClick={() => go(1)}
-            className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-black/35 px-2 py-3 text-white backdrop-blur-sm transition hover:bg-black/50 sm:block"
+            className="absolute right-1 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-2xl text-white backdrop-blur-sm transition hover:bg-black/50"
           >
             ›
           </button>

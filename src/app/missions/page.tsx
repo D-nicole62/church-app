@@ -2,7 +2,14 @@ import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { missionsPhotos } from "@/lib/church-photos";
+import { pageMetadata } from "@/lib/seo";
 import { CHURCH_NAME, MISSION, WHO_WE_ARE } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "Missions",
+  description: `Evangelism and missions at ${CHURCH_NAME}, equipping saints for the end-time harvest.`,
+  path: "/missions",
+});
 
 export default function MissionsPage() {
   return (
@@ -41,16 +48,16 @@ export default function MissionsPage() {
       </div>
 
       <Card>
-        <p className="mb-3 text-sm font-medium text-foreground">Our focus</p>
+        <h2 className="mb-3 text-sm font-medium text-foreground">Our focus</h2>
         <p className="mb-3 text-sm text-muted-foreground">{WHO_WE_ARE[1]}</p>
         <p className="text-sm text-muted-foreground">{MISSION}</p>
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <p className="mb-3 text-sm font-medium text-foreground">
+          <h2 className="mb-3 text-sm font-medium text-foreground">
             Evangelism &amp; outreach
-          </p>
+          </h2>
           <p className="text-sm text-muted-foreground">
             Soul winning, outreach programs, and community impact initiatives
             that bring the message of salvation, hope, and restoration to
@@ -59,9 +66,9 @@ export default function MissionsPage() {
         </Card>
 
         <Card>
-          <p className="mb-3 text-sm font-medium text-foreground">
+          <h2 className="mb-3 text-sm font-medium text-foreground">
             Strategic partnerships
-          </p>
+          </h2>
           <p className="text-sm text-muted-foreground">
             Equipping saints for the end-time harvest through the power of the
             Holy Spirit in partnership with strategic alliances worldwide. Ask

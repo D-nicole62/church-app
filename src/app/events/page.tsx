@@ -1,13 +1,22 @@
+import { Field } from "@/components/forms/Field";
 import { PhoneField } from "@/components/forms/PhoneField";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { isPlaceholderEvent } from "@/lib/content/placeholder-records";
 import { queryDatabase } from "@/lib/db";
 import { getPublicEvents } from "@/lib/events/queries";
 import { rsvpToEventAction } from "@/lib/events/actions";
+import { pageMetadata } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
+
+export const metadata = pageMetadata({
+  title: "Events",
+  description:
+    "Upcoming gatherings at Tabernacle of David Assembly-City Mission Church in Lusaka, and a way to RSVP.",
+  path: "/events",
+});
 
 function formatDateRange(startsAt: Date, endsAt: Date | null) {
   const startDate = startsAt.toLocaleDateString(undefined, {
@@ -85,6 +94,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   } else {
     loadError = true;
   }
+
+  events = events.filter((event) => !isPlaceholderEvent(event));
 
   const upcoming = events.filter((event) => event.startsAt >= now);
   const past = events.filter((event) => event.startsAt < now).reverse();
@@ -180,12 +191,35 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                         RSVP
                       </p>
                       <div className="grid gap-2 sm:grid-cols-2">
-                        <Input name="firstName" placeholder="First name" required />
-                        <Input name="lastName" placeholder="Last name" required />
-                        <Input type="email" name="email" placeholder="Email" />
-                        <PhoneField placeholder="0971234567" />
+                        <Field id={`rsvp-first-${event.id}`} label="First name">
+                          <Input
+                            id={`rsvp-first-${event.id}`}
+                            name="firstName"
+                            autoComplete="given-name"
+                            required
+                          />
+                        </Field>
+                        <Field id={`rsvp-last-${event.id}`} label="Last name">
+                          <Input
+                            id={`rsvp-last-${event.id}`}
+                            name="lastName"
+                            autoComplete="family-name"
+                            required
+                          />
+                        </Field>
+                        <Field id={`rsvp-email-${event.id}`} label="Email (optional)">
+                          <Input
+                            id={`rsvp-email-${event.id}`}
+                            type="email"
+                            name="email"
+                            autoComplete="email"
+                          />
+                        </Field>
+                        <Field id={`rsvp-phone-${event.id}`} label="Phone (optional)">
+                          <PhoneField id={`rsvp-phone-${event.id}`} />
+                        </Field>
                       </div>
-                      <Button type="submit" variant="secondary">
+                      <Button type="submit" variant="secondary" className="w-full sm:w-auto">
                         I&apos;ll be there
                       </Button>
                     </form>

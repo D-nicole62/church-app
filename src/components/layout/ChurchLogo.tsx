@@ -31,8 +31,10 @@ export function ChurchLogo({
         height={120}
         priority={priority}
         className={cn(
-          "w-auto object-contain object-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.18)]",
-          isHeader ? "h-11 sm:h-12" : "h-9 sm:h-10",
+          "h-auto w-auto max-w-full object-contain object-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.18)]",
+          isHeader
+            ? "max-h-11 max-w-[11.5rem] sm:max-h-12 sm:max-w-[16rem]"
+            : "max-h-10 max-w-[9.5rem] sm:max-h-11 sm:max-w-[14rem]",
         )}
       />
     </span>

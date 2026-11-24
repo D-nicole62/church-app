@@ -1,10 +1,21 @@
+import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
-
-export const dynamic = "force-dynamic";
 import { SermonPlayer } from "@/components/sermons/SermonPlayer";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { queryDatabase } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
+import { pageMetadata } from "@/lib/seo";
+import { YOUTUBE_UPLOADS_PLAYLIST_ID, YOUTUBE_URL } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
+
+export const metadata = pageMetadata({
+  title: "Sermons",
+  description:
+    "Watch Sunday services and recent messages from Tabernacle of David Assembly-City Mission Church on YouTube.",
+  path: "/sermons",
+});
 
 const hero = (
   <div className="space-y-3">
@@ -28,9 +39,38 @@ export default async function SermonsPage() {
 
   return (
     <PageShell hero={hero}>
-      {sermons.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No sermons available yet.</p>
-      ) : (
+      <section className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Watch our services on YouTube
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              Recent uploads from the church channel play below. You can also
+              open the channel to watch a full service.
+            </p>
+          </div>
+          <Link
+            href={YOUTUBE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full sm:w-auto"
+          >
+            <Button className="w-full sm:w-auto">Watch on YouTube</Button>
+          </Link>
+        </div>
+        <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black">
+          <iframe
+            title="Latest uploads from Tabernacle of David Assembly on YouTube"
+            src={`https://www.youtube-nocookie.com/embed/videoseries?list=${YOUTUBE_UPLOADS_PLAYLIST_ID}`}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+          />
+        </div>
+      </section>
+      {sermons.length === 0 ? null : (
         <section className="grid gap-4 md:grid-cols-2">
           {sermons.map((sermon) => (
             <Card
@@ -46,7 +86,7 @@ export default async function SermonsPage() {
                     {" · "}
                     {sermon.mediaType === "AUDIO" ? "Audio" : "Video"}
                   </p>
-                  <p className="text-sm font-medium text-foreground">{sermon.title}</p>
+                  <h3 className="text-sm font-medium text-foreground">{sermon.title}</h3>
                 </div>
               }
             >

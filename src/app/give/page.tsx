@@ -3,7 +3,14 @@ import { GivingForm } from "@/components/giving/GivingForm";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { getPaymentTimeoutSeconds } from "@/lib/lipila";
+import { pageMetadata } from "@/lib/seo";
 import { CHURCH_NAME, CONTACT } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "Give",
+  description: `Give online with mobile money or card, or give in person during Sunday services at ${CHURCH_NAME}.`,
+  path: "/give",
+});
 
 type GivePageProps = {
   searchParams?: Promise<{ status?: string; referenceId?: string }>;
@@ -31,9 +38,9 @@ export default async function GivePage({ searchParams }: GivePageProps) {
     >
       <Card
         header={
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Give online
-          </p>
+          </h2>
         }
       >
         <p className="mb-2 text-sm font-medium text-foreground">
@@ -54,24 +61,31 @@ export default async function GivePage({ searchParams }: GivePageProps) {
       <div className="space-y-4">
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Other ways to give
-            </p>
+            </h2>
           }
         >
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>Give in person using the giving boxes during services.</li>
+            <li>Give in person using the giving boxes during Sunday services.</li>
             <li>
-              Mail checks to {CHURCH_NAME}, {CONTACT.address}, {CONTACT.city}.
+              For any other way to give, email{" "}
+              <Link
+                href={`mailto:${CONTACT.email}`}
+                className="text-primary underline underline-offset-4 hover:opacity-90"
+              >
+                {CONTACT.email}
+              </Link>
+              .
             </li>
           </ul>
         </Card>
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Why we give
-            </p>
+            </h2>
           }
         >
           <p className="mb-2 text-sm text-muted-foreground">

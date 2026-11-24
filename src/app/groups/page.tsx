@@ -7,9 +7,16 @@ import {
   regionAnchor,
 } from "@/lib/cell-church-structure";
 import { MINISTRY_CLUSTERS, clusterAnchor } from "@/lib/church-ministries";
-import { CHURCH_NAME } from "@/lib/site";
 import { isDatabaseConfigured } from "@/lib/db";
 import { getPublicCellGroups } from "@/lib/groups/queries";
+import { pageMetadata } from "@/lib/seo";
+import { CHURCH_NAME } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "Groups",
+  description: `Ministry clusters, cell church regions, and cell groups at ${CHURCH_NAME}.`,
+  path: "/groups",
+});
 
 const groupsHero = (
   <div className="space-y-3">
@@ -61,7 +68,7 @@ export default async function GroupsPage() {
             <details
               key={cluster.title}
               id={clusterAnchor(cluster.title)}
-              className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm"
+              className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm [&_summary]:flex [&_summary]:min-h-11 [&_summary]:items-center [&_summary]:break-words"
             >
               <summary className="cursor-pointer text-sm font-medium text-foreground">
                 {cluster.title}
@@ -90,7 +97,7 @@ export default async function GroupsPage() {
             <details
               key={region.name}
               id={regionAnchor(region.name)}
-              className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm"
+              className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm [&_summary]:flex [&_summary]:min-h-11 [&_summary]:items-center [&_summary]:break-words"
             >
               <summary className="cursor-pointer text-sm font-medium text-foreground">
                 {region.name}
@@ -103,7 +110,12 @@ export default async function GroupsPage() {
                       <ul className="mt-1 list-inside list-disc space-y-0.5 pl-1">
                         {zone.cells.map((cell) => (
                           <li key={cell}>
-                            <a href={`#${cellAnchor(region.name, cell)}`}>{cell}</a>
+                            <a
+                              className="inline-flex min-h-11 items-center"
+                              href={`#${cellAnchor(region.name, cell)}`}
+                            >
+                              {cell}
+                            </a>
                           </li>
                         ))}
                       </ul>
@@ -136,7 +148,7 @@ export default async function GroupsPage() {
                   <details
                     key={`${region.name}-${cell}`}
                     id={cellAnchor(region.name, cell)}
-                    className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm"
+                    className="scroll-mt-6 rounded-2xl border border-border bg-card/90 p-4 shadow-sm [&_summary]:flex [&_summary]:min-h-11 [&_summary]:items-center [&_summary]:break-words"
                   >
                     <summary className="cursor-pointer text-sm font-medium text-foreground">
                       {cell}

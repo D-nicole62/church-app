@@ -15,6 +15,7 @@ const navItems = [
   { href: "/admin/finance", label: "Finance" },
   { href: "/admin/notifications", label: "Notifications" },
   { href: "/admin/reports", label: "Reports" },
+  { href: "/admin/messages", label: "Messages" },
 ];
 
 type AdminShellProps = {
@@ -82,10 +83,41 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="border-b border-border bg-card px-4 py-4 md:hidden">
-            <p className="text-sm font-semibold">{CHURCH_NAME_SHORT} Admin</p>
-            <p className="text-xs text-muted-foreground">
-              {ROLE_LABELS[user.role]}
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">{CHURCH_NAME_SHORT} Admin</p>
+                <p className="text-xs text-muted-foreground">
+                  {ROLE_LABELS[user.role]}
+                </p>
+              </div>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/admin/login" });
+                }}
+              >
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 items-center text-sm font-medium text-primary"
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
+            <nav
+              className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1"
+              aria-label="Admin"
+            >
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-border px-3 text-sm font-medium"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
           </header>
           <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
         </div>

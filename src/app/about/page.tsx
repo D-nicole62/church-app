@@ -2,15 +2,21 @@ import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { PhotoGrid } from "@/components/ui/photo-grid";
 import { aboutGalleryPhotos } from "@/lib/church-photos";
+import { pageMetadata } from "@/lib/seo";
 import {
   AFFILIATION,
   CHURCH_NAME,
-  LAUNCHED_DATE,
   MISSION,
   SENIOR_PASTOR,
   VISION,
   WHO_WE_ARE,
 } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "About",
+  description: `Who we are, our vision, and our mission at ${CHURCH_NAME}, a cell-based church in Lusaka.`,
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
@@ -31,7 +37,7 @@ export default function AboutPage() {
       className="grid gap-8"
     >
       <Card>
-        <p className="mb-3 text-sm font-medium text-foreground">Who we are</p>
+        <h2 className="mb-3 text-sm font-medium text-foreground">Who we are</h2>
         {WHO_WE_ARE.map((paragraph) => (
           <p
             key={paragraph.slice(0, 40)}
@@ -40,9 +46,6 @@ export default function AboutPage() {
             {paragraph}
           </p>
         ))}
-        <p className="mt-4 text-xs text-muted-foreground">
-          Officially launched on {LAUNCHED_DATE}.
-        </p>
         <div className="mt-5 border-t border-border pt-4">
           <p className="text-sm font-semibold text-foreground">
             {SENIOR_PASTOR.name}
@@ -54,12 +57,12 @@ export default function AboutPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <p className="mb-3 text-sm font-medium text-foreground">Our vision</p>
+          <h2 className="mb-3 text-sm font-medium text-foreground">Our vision</h2>
           <p className="text-sm text-muted-foreground">{VISION}</p>
         </Card>
 
         <Card>
-          <p className="mb-3 text-sm font-medium text-foreground">Our mission</p>
+          <h2 className="mb-3 text-sm font-medium text-foreground">Our mission</h2>
           <p className="text-sm text-muted-foreground">{MISSION}</p>
         </Card>
       </div>

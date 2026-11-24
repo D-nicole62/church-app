@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FormConsent } from "@/components/forms/FormConsent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -652,7 +653,7 @@ export function GivingForm({
                 if (status.kind === "error") resetStatus();
               }}
               className={cn(
-                "rounded-full px-4 py-1.5 transition-colors",
+                "inline-flex min-h-11 items-center rounded-full px-4 transition-colors",
                 active
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-foreground/70 hover:text-primary",
@@ -686,7 +687,7 @@ export function GivingForm({
                   aria-checked={active}
                   onClick={() => setPurpose(option.id)}
                   className={cn(
-                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                    "inline-flex min-h-11 items-center rounded-full border px-4 text-xs font-medium transition-colors",
                     active
                       ? "border-primary bg-primary text-primary-foreground shadow-sm"
                       : "border-border bg-card text-foreground/70 hover:border-primary/40 hover:text-primary",
@@ -699,10 +700,14 @@ export function GivingForm({
           </div>
           {purpose === "other" && (
             <div className="mt-3">
-              <label className="mb-1 block text-xs font-medium text-foreground/80">
+              <label
+                htmlFor="give-other"
+                className="mb-1 block text-xs font-medium text-foreground/80"
+              >
                 Please specify (optional)
               </label>
               <Input
+                id="give-other"
                 value={otherNote}
                 onChange={(e) => setOtherNote(e.target.value)}
                 placeholder="e.g. Building fund, special project"
@@ -713,10 +718,14 @@ export function GivingForm({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground/80">
+            <label
+              htmlFor="give-amount"
+              className="mb-1 block text-xs font-medium text-foreground/80"
+            >
               Amount ({DEFAULT_CURRENCY})
             </label>
             <Input
+              id="give-amount"
               type="number"
               min={1}
               step="0.01"
@@ -732,10 +741,14 @@ export function GivingForm({
           <>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-phone"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   Mobile money number
                 </label>
                 <Input
+                  id="give-phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -744,10 +757,14 @@ export function GivingForm({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-email"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   Email (optional)
                 </label>
                 <Input
+                  id="give-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -765,20 +782,30 @@ export function GivingForm({
           <>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-first-name"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   First name
                 </label>
                 <Input
+                  id="give-first-name"
+                  autoComplete="given-name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-last-name"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   Last name
                 </label>
                 <Input
+                  id="give-last-name"
+                  autoComplete="family-name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
@@ -787,11 +814,16 @@ export function GivingForm({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-card-phone"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   Phone
                 </label>
                 <Input
+                  id="give-card-phone"
                   type="tel"
+                  autoComplete="tel"
                   value={cardPhone}
                   onChange={(e) => setCardPhone(e.target.value)}
                   placeholder="260977000000"
@@ -799,11 +831,16 @@ export function GivingForm({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-card-email"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   Email
                 </label>
                 <Input
+                  id="give-card-email"
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -811,10 +848,15 @@ export function GivingForm({
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground/80">
+              <label
+                htmlFor="give-address"
+                className="mb-1 block text-xs font-medium text-foreground/80"
+              >
                 Address
               </label>
               <Textarea
+                id="give-address"
+                autoComplete="street-address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
@@ -822,19 +864,32 @@ export function GivingForm({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-city"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   City
                 </label>
                 <Input
+                  id="give-city"
+                  autoComplete="address-level2"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="give-zip"
+                  className="mb-1 block text-xs font-medium text-foreground/80"
+                >
                   Postal / ZIP
                 </label>
-                <Input value={zip} onChange={(e) => setZip(e.target.value)} />
+                <Input
+                  id="give-zip"
+                  autoComplete="postal-code"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                />
               </div>
             </div>
             <p className="text-[11px] text-muted-foreground">
@@ -844,8 +899,10 @@ export function GivingForm({
           </>
         )}
 
+        <FormConsent />
         <div className="pt-1">
           <Button
+            className="w-full sm:w-auto"
             type="submit"
             variant="primary"
             disabled={isLoading || status.kind === "momo-pending"}

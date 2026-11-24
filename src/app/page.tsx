@@ -5,16 +5,25 @@ import { homeFeaturedPhoto } from "@/lib/church-photos";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { pageMetadata } from "@/lib/seo";
 import {
   CHILDREN_CHURCH,
   CHURCH_NAME,
+  PUBLIC_ADDRESS,
   SENIOR_PASTOR,
   SERVICE_TIMES,
+  SITE_DESCRIPTION,
   VISION,
   WELCOME_BODY,
   WELCOME_CLOSING,
   WELCOME_INTRO,
 } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: CHURCH_NAME,
+  description: SITE_DESCRIPTION,
+  path: "/",
+});
 
 export default function Home() {
   return (
@@ -25,27 +34,29 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">
               Welcome
             </p>
-            <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h1 className="max-w-xl text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Welcome to {CHURCH_NAME}
             </h1>
             <p className="max-w-xl text-sm text-white/85 sm:text-base">
               {WELCOME_INTRO} {WELCOME_BODY[0]}
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/visit">
-                <Button variant="primary">Plan Your Visit</Button>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
+              <Link href="/visit" className="inline-flex w-full sm:w-auto">
+                <Button variant="primary" className="w-full sm:w-auto">
+                  Plan Your Visit
+                </Button>
               </Link>
-              <Link href="/about">
+              <Link href="/about" className="inline-flex w-full sm:w-auto">
                 <Button
                   variant="ghost"
-                  className="border border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/15"
+                  className="w-full border border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/15 sm:w-auto"
                 >
                   Who We Are
                 </Button>
               </Link>
             </div>
             <div className="w-full max-w-md space-y-2 rounded-2xl border border-white/15 bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm">
-              <p className="font-semibold text-white">Sunday worship</p>
+              <h2 className="font-semibold text-white">Sunday worship</h2>
               <ul className="space-y-1">
                 {SERVICE_TIMES.map((service) => (
                   <li key={service.id}>
@@ -55,7 +66,7 @@ export default function Home() {
                 ))}
               </ul>
               <p className="pt-1 text-white/65">
-                Along Given Lubinda Road, Lusaka
+                {PUBLIC_ADDRESS}
               </p>
             </div>
           </div>
@@ -93,12 +104,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
+      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Our Vision
-            </p>
+            </h2>
           }
           footer={
             <Link
@@ -114,9 +125,9 @@ export default function Home() {
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Cell Church
-            </p>
+            </h2>
           }
           footer={
             <Link
@@ -137,10 +148,11 @@ export default function Home() {
         </Card>
 
         <Card
+          className="md:col-span-2 lg:col-span-1"
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Evangelism &amp; Missions
-            </p>
+            </h2>
           }
           footer={
             <Link
@@ -161,12 +173,12 @@ export default function Home() {
         </Card>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-2">
+      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               {CHILDREN_CHURCH.title}
-            </p>
+            </h2>
           }
           footer={
             <Link
@@ -185,9 +197,9 @@ export default function Home() {
 
         <Card
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Plan Your Visit
-            </p>
+            </h2>
           }
           footer={
             <Link
@@ -216,10 +228,11 @@ export default function Home() {
         </Card>
 
         <Card
+          className="md:col-span-2 lg:col-span-1"
           header={
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Contact
-            </p>
+            </h2>
           }
           footer={
             <Link
@@ -234,8 +247,8 @@ export default function Home() {
             We would love to hear from you.
           </p>
           <p>
-            Visit us along Given Lubinda Road in Lusaka, call, or email our
-            office—we are here to help you connect with our church family.
+            Visit us at {PUBLIC_ADDRESS}, call, or email our office—we are here
+            to help you connect with our church family.
           </p>
         </Card>
       </section>
