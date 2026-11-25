@@ -7,15 +7,20 @@ import {
 import {
   recordPendingLipilaTransaction,
 } from "@/lib/finance/record";
+import {
+  getLipilaApiKey,
+  paymentRoute,
+  paymentsNotConfiguredResponse,
+} from "@/lib/payments";
 
 export const runtime = "nodejs";
 
-const LIPILA_API_KEY =
-  process.env.LIPILA_API_KEY?.trim() ||
-  // Fallback key from the church's PHP example. Override via .env.local.
-  "lsk_019e079a-bc0d-72bc-97ff-7e6b1d4d28d1";
+async function startPayment(request: Request) {
+  const lipilaApiKey = getLipilaApiKey();
+  if (!lipilaApiKey) {
+    return paymentsNotConfiguredResponse();
+  }
 
-export async function POST(request: Request) {
   let body: GivingRequestBody | null = null;
 
   try {
@@ -39,7 +44,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": LIPILA_API_KEY,
+        "x-api-key": lipilaApiKey,
         accept: "application/json",
       },
       body: JSON.stringify(body.data),
@@ -121,3 +126,9 @@ export async function POST(request: Request) {
 
   return NextResponse.json(decoded, { status: upstream.status });
 }
+
+export const POST = paymentRoute(startPayment);
+export const GET = paymentRoute();
+export const PUT = paymentRoute();
+export const PATCH = paymentRoute();
+export const DELETE = paymentRoute();

@@ -68,6 +68,26 @@ export default async function GroupDetailPage({
           No group members have contact details for the selected channel.
         </p>
       ) : null}
+      {query.error === "missing-name" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Enter a group name.
+        </p>
+      ) : null}
+      {query.error === "missing-zone" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Cell groups need a zone.
+        </p>
+      ) : null}
+      {query.success === "created" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Group created.
+        </p>
+      ) : null}
+      {query.success === "updated" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Group updated.
+        </p>
+      ) : null}
       {query.success === "announcement-sent" ? (
         <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
           Group announcement queued and logged.

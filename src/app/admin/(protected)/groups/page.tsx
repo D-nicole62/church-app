@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminGroupsPage() {
+type AdminGroupsPageProps = {
+  searchParams?: Promise<{ success?: string }>;
+};
+
+export default async function AdminGroupsPage({ searchParams }: AdminGroupsPageProps) {
+  const query = (await searchParams) ?? {};
   const groups = await prisma.group.findMany({
     include: {
       campus: true,
@@ -26,6 +31,12 @@ export default async function AdminGroupsPage() {
           </Link>
         }
       />
+
+      {query.success === "deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Group deleted.
+        </p>
+      ) : null}
 
       <Card header={<p className="text-sm font-medium">All groups</p>}>
         {groups.length === 0 ? (

@@ -71,10 +71,14 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           <form action={loginAction} className="space-y-4">
             <input type="hidden" name="callbackUrl" value={callbackUrl} />
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground/80">
+              <label
+                htmlFor="admin-email"
+                className="mb-1 block text-xs font-medium text-foreground/80"
+              >
                 Email
               </label>
               <Input
+                id="admin-email"
                 type="email"
                 name="email"
                 autoComplete="email"
@@ -82,10 +86,14 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground/80">
+              <label
+                htmlFor="admin-password"
+                className="mb-1 block text-xs font-medium text-foreground/80"
+              >
                 Password
               </label>
               <Input
+                id="admin-password"
                 type="password"
                 name="password"
                 autoComplete="current-password"

@@ -11,7 +11,14 @@ import {
 } from "@/lib/attendance/actions";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminAttendancePage() {
+type AdminAttendancePageProps = {
+  searchParams?: Promise<{ error?: string; success?: string }>;
+};
+
+export default async function AdminAttendancePage({
+  searchParams,
+}: AdminAttendancePageProps) {
+  const query = (await searchParams) ?? {};
   const [lookups, serviceRecords, cellRecords] = await Promise.all([
     getAdminLookups(),
     prisma.serviceAttendance.findMany({ orderBy: { serviceDate: "desc" }, take: 10 }),
@@ -29,6 +36,27 @@ export default async function AdminAttendancePage() {
         title="Attendance"
         description="Record service-level attendance and generic cell group meeting counts."
       />
+
+      {query.success === "recorded" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Service attendance saved.
+        </p>
+      ) : null}
+      {query.success === "cell-recorded" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Cell group attendance saved.
+        </p>
+      ) : null}
+      {query.error === "missing-required" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Choose a service date and enter a service name.
+        </p>
+      ) : null}
+      {query.error === "missing-cell-required" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Choose a cell group and a meeting date.
+        </p>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card header={<p className="text-sm font-medium">Service attendance</p>}>

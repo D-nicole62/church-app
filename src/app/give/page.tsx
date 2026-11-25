@@ -1,16 +1,22 @@
 import Link from "next/link";
 import { GivingForm } from "@/components/giving/GivingForm";
+import { OnlineGivingPaused } from "@/components/giving/OnlineGivingPaused";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { getPaymentTimeoutSeconds } from "@/lib/lipila";
+import { paymentsEnabled } from "@/lib/payments";
 import { pageMetadata } from "@/lib/seo";
 import { CHURCH_NAME, CONTACT } from "@/lib/site";
 
-export const metadata = pageMetadata({
-  title: "Give",
-  description: `Give online with mobile money or card, or give in person during Sunday services at ${CHURCH_NAME}.`,
-  path: "/give",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    title: "Give",
+    description: paymentsEnabled()
+      ? `Give online with mobile money or card, or give in person during Sunday services at ${CHURCH_NAME}.`
+      : `Online giving is coming soon at ${CHURCH_NAME}. Give in person during Sunday services, or contact the church.`,
+    path: "/give",
+  });
+}
 
 type GivePageProps = {
   searchParams?: Promise<{ status?: string; referenceId?: string }>;
@@ -18,6 +24,7 @@ type GivePageProps = {
 
 export default async function GivePage({ searchParams }: GivePageProps) {
   const params = (await searchParams) ?? {};
+  const onlineGivingOpen = paymentsEnabled();
   return (
     <PageShell
       hero={
@@ -43,19 +50,25 @@ export default async function GivePage({ searchParams }: GivePageProps) {
           </h2>
         }
       >
-        <p className="mb-2 text-sm font-medium text-foreground">
-          Give securely with Mobile Money or Card
-        </p>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Powered by Lipila. Mobile Money sends a prompt to your phone to
-          approve. Card payments use a secure hosted page—we never store your
-          card details.
-        </p>
-        <GivingForm
-          paymentTimeoutSeconds={getPaymentTimeoutSeconds()}
-          returnStatus={params.status}
-          returnReferenceId={params.referenceId}
-        />
+        {onlineGivingOpen ? (
+          <>
+            <p className="mb-2 text-sm font-medium text-foreground">
+              Give securely with Mobile Money or Card
+            </p>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Powered by Lipila. Mobile Money sends a prompt to your phone to
+              approve. Card payments use a secure hosted page—we never store your
+              card details.
+            </p>
+            <GivingForm
+              paymentTimeoutSeconds={getPaymentTimeoutSeconds()}
+              returnStatus={params.status}
+              returnReferenceId={params.referenceId}
+            />
+          </>
+        ) : (
+          <OnlineGivingPaused />
+        )}
       </Card>
 
       <div className="space-y-4">

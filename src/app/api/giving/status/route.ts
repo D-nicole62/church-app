@@ -5,14 +5,20 @@ import {
   recordFailedLipilaFromStatus,
   recordSuccessfulLipilaFromStatus,
 } from "@/lib/finance/record";
+import {
+  getLipilaApiKey,
+  paymentRoute,
+  paymentsNotConfiguredResponse,
+} from "@/lib/payments";
 
 export const runtime = "nodejs";
 
-const LIPILA_API_KEY =
-  process.env.LIPILA_API_KEY?.trim() ||
-  "lsk_019e079a-bc0d-72bc-97ff-7e6b1d4d28d1";
+async function checkPaymentStatus(request: Request) {
+  const lipilaApiKey = getLipilaApiKey();
+  if (!lipilaApiKey) {
+    return paymentsNotConfiguredResponse();
+  }
 
-export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const referenceId = searchParams.get("referenceId")?.trim();
 
@@ -31,7 +37,7 @@ export async function GET(request: Request) {
       method: "GET",
       headers: {
         accept: "application/json",
-        "x-api-key": LIPILA_API_KEY,
+        "x-api-key": lipilaApiKey,
       },
       signal: AbortSignal.timeout(20_000),
       cache: "no-store",
@@ -91,3 +97,9 @@ export async function GET(request: Request) {
 
   return NextResponse.json(decoded, { status: upstream.status });
 }
+
+export const GET = paymentRoute(checkPaymentStatus);
+export const POST = paymentRoute();
+export const PUT = paymentRoute();
+export const PATCH = paymentRoute();
+export const DELETE = paymentRoute();

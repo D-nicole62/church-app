@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { closeLipilaPaymentSession } from "@/lib/finance/record";
+import { paymentRoute } from "@/lib/payments";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+async function closePayment(request: Request) {
   let body: { referenceId?: string; outcome?: string } | null = null;
   try {
     body = (await request.json()) as { referenceId?: string; outcome?: string };
@@ -34,3 +35,9 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true, referenceId, outcome });
 }
+
+export const POST = paymentRoute(closePayment);
+export const GET = paymentRoute();
+export const PUT = paymentRoute();
+export const PATCH = paymentRoute();
+export const DELETE = paymentRoute();

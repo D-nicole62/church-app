@@ -17,10 +17,15 @@ import { prisma } from "@/lib/prisma";
 
 type VisitorDetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ error?: string; success?: string }>;
 };
 
-export default async function VisitorDetailPage({ params }: VisitorDetailPageProps) {
+export default async function VisitorDetailPage({
+  params,
+  searchParams,
+}: VisitorDetailPageProps) {
   const { id } = await params;
+  const query = (await searchParams) ?? {};
   const [visitor, lookups] = await Promise.all([
     prisma.visitor.findUnique({
       where: { id },
@@ -56,6 +61,27 @@ export default async function VisitorDetailPage({ params }: VisitorDetailPagePro
           </Link>
         }
       />
+
+      {query.success === "updated" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Visitor status updated.
+        </p>
+      ) : null}
+      {query.success === "follow-up-added" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Follow-up saved.
+        </p>
+      ) : null}
+      {query.error === "invalid-status" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Choose a valid visitor status.
+        </p>
+      ) : null}
+      {query.error === "invalid-follow-up" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Choose a channel and a date for the follow-up.
+        </p>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card header={<p className="text-sm font-medium">Visitor details</p>}>

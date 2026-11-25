@@ -70,6 +70,21 @@ export default async function MemberDetailPage({
           </Link>
         }
       />
+      {query.success === "created" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Member created.
+        </p>
+      ) : null}
+      {query.success === "updated" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Member updated.
+        </p>
+      ) : null}
+      {query.error === "missing-required" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          First name, last name, and campus are required.
+        </p>
+      ) : null}
       {query.success === "household" ? (
         <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
           Household saved. This member is attached.
