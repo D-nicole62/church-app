@@ -31,8 +31,9 @@ npx prisma generate
 npx prisma db push
 npx prisma db seed
 
-echo "Payments flag unit tests..."
+echo "Payments flag and email unit tests..."
 npm run test:payments
+npm run test:mail
 
 echo "Lint and typecheck..."
 npm run lint

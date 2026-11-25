@@ -10,7 +10,12 @@ import {
   formatCurrency,
 } from "@/lib/finance/format";
 
-export default async function AdminFinancePage() {
+type FinancePageProps = {
+  searchParams?: Promise<{ success?: string }>;
+};
+
+export default async function AdminFinancePage({ searchParams }: FinancePageProps) {
+  const query = (await searchParams) ?? {};
   const onlineGivingOpen = paymentsEnabled();
   const { transactions, successfulTotal, pendingCount, syncPending } =
     await getFinanceSummary();
@@ -26,6 +31,12 @@ export default async function AdminFinancePage() {
           </Link>
         }
       />
+
+      {query.success === "deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Giving record deleted.
+        </p>
+      ) : null}
 
       {onlineGivingOpen ? null : (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">

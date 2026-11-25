@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { PUBLIC_PAGES } from "./helpers";
+import { login, PUBLIC_PAGES } from "./helpers";
 
 const WIDTHS = [390, 768, 1024, 1440] as const;
 
@@ -21,11 +21,7 @@ test.describe("responsive layout", () => {
 
   test("admin navigation is usable on a phone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/admin/login");
-    await page.getByLabel("Email").fill(process.env.ADMIN_SEED_EMAIL || "admin@todassembly.com");
-    await page.getByLabel("Password").fill(process.env.ADMIN_SEED_PASSWORD || "ChangeMe123!");
-    await page.getByRole("button", { name: "Sign in" }).click({ noWaitAfter: true });
-    await expect(page.getByRole("heading", { name: "TOD church operations" })).toBeVisible();
+    await login(page);
     const nav = page.getByRole("navigation", { name: "Admin" });
     await expect(nav.getByRole("link", { name: "Events" })).toBeVisible();
     await nav.getByRole("link", { name: "Finance" }).click();

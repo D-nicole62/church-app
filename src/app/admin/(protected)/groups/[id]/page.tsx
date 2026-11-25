@@ -68,6 +68,13 @@ export default async function GroupDetailPage({
           No group members have contact details for the selected channel.
         </p>
       ) : null}
+      {query.error === "email-failed" || query.error === "email-skipped" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {query.detail
+            ? decodeURIComponent(query.detail)
+            : "The announcement was not sent. See the notification log for details."}
+        </p>
+      ) : null}
       {query.error === "missing-name" ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
           Enter a group name.

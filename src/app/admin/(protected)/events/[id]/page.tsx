@@ -70,6 +70,13 @@ export default async function EventDetailPage({
           No recipients found for the selected audience and channel.
         </p>
       ) : null}
+      {query.error === "email-failed" || query.error === "email-skipped" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {query.detail
+            ? decodeURIComponent(query.detail)
+            : "The reminder was not sent. See the notification log for details."}
+        </p>
+      ) : null}
       {query.success === "reminder-sent" ? (
         <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
           Event reminder queued and logged.

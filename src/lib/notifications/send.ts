@@ -16,6 +16,7 @@ export type DeliverNotificationInput = {
   subject?: string;
   body: string;
   imageUrl?: string | null;
+  replyTo?: string;
   entityType?: string;
   entityId?: string;
   visitorId?: string;
@@ -48,6 +49,7 @@ export async function deliverNotification(input: DeliverNotificationInput) {
           subject: input.subject || "TOD Assembly",
           body: input.body,
           imageUrl: input.imageUrl,
+          replyTo: input.replyTo,
         })
       : await sendSms({
           to: input.recipient,

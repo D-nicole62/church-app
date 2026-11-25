@@ -16,6 +16,7 @@ const navItems = [
   { href: "/admin/notifications", label: "Notifications" },
   { href: "/admin/reports", label: "Reports" },
   { href: "/admin/messages", label: "Messages" },
+  { href: "/admin/email", label: "Email" },
 ];
 
 type AdminShellProps = {
@@ -29,6 +30,11 @@ type AdminShellProps = {
 };
 
 export function AdminShell({ children, user, currentPath }: AdminShellProps) {
+  const items =
+    user.role === "SUPER_ADMIN"
+      ? [...navItems, { href: "/admin/users", label: "Admin users" }]
+      : navItems;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
@@ -42,7 +48,7 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
             </p>
           </div>
           <nav className="flex-1 space-y-1 p-3">
-            {navItems.map((item) => (
+            {items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -64,12 +70,18 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
             <p className="text-xs text-muted-foreground">
               {ROLE_LABELS[user.role]}
             </p>
+            <Link
+              href="/admin/account/password"
+              className="mt-3 inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Change password
+            </Link>
             <form
               action={async () => {
                 "use server";
                 await signOut({ redirectTo: "/admin/login" });
               }}
-              className="mt-3"
+              className="mt-2"
             >
               <button
                 type="submit"
@@ -89,6 +101,12 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
                 <p className="text-xs text-muted-foreground">
                   {ROLE_LABELS[user.role]}
                 </p>
+                <Link
+                  href="/admin/account/password"
+                  className="mt-1 inline-flex min-h-11 items-center text-sm font-medium text-primary"
+                >
+                  Change password
+                </Link>
               </div>
               <form
                 action={async () => {
@@ -108,7 +126,7 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
               className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1"
               aria-label="Admin"
             >
-              {navItems.map((item) => (
+              {items.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

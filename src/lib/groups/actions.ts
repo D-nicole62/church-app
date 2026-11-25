@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import {
   GroupMembershipRole,
   GroupType,
@@ -32,6 +33,7 @@ function groupFormData(formData: FormData) {
 }
 
 export async function createGroupAction(formData: FormData) {
+  await requireAdmin();
   const data = groupFormData(formData);
   if (!data.name) {
     redirect("/admin/groups/new?error=missing-name");
@@ -47,6 +49,7 @@ export async function createGroupAction(formData: FormData) {
 }
 
 export async function updateGroupAction(groupId: string, formData: FormData) {
+  await requireAdmin();
   const data = groupFormData(formData);
   if (!data.name) {
     redirect(`/admin/groups/${groupId}?error=missing-name`);
@@ -67,6 +70,7 @@ export async function updateGroupAction(groupId: string, formData: FormData) {
 }
 
 export async function deleteGroupAction(groupId: string) {
+  await requireAdmin();
   await prisma.group.delete({ where: { id: groupId } });
   revalidatePath("/admin/groups");
   revalidatePath("/groups");
@@ -74,6 +78,7 @@ export async function deleteGroupAction(groupId: string) {
 }
 
 export async function addGroupMemberAction(groupId: string, formData: FormData) {
+  await requireAdmin();
   const personId = formData.get("personId")?.toString().trim();
   const roleRaw = formData.get("role")?.toString();
   const role =
@@ -97,6 +102,7 @@ export async function addGroupMemberAction(groupId: string, formData: FormData) 
 }
 
 export async function removeGroupMemberAction(groupId: string, membershipId: string) {
+  await requireAdmin();
   await prisma.groupMembership.delete({ where: { id: membershipId } });
   revalidatePath(`/admin/groups/${groupId}`);
   revalidatePath("/groups");

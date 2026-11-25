@@ -7,13 +7,15 @@ import { getDatabaseHealth } from "@/lib/db-health";
 import { CHURCH_NAME_SHORT } from "@/lib/site";
 
 type AdminLoginPageProps = {
-  searchParams?: Promise<{ error?: string; callbackUrl?: string }>;
+  searchParams?: Promise<{ error?: string; callbackUrl?: string; password?: string }>;
 };
 
 export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
   const params = await searchParams;
   const hasInvalidCredentials = params?.error === "invalid";
   const hasDatabaseError = params?.error === "database";
+  const hasInactiveAccount = params?.error === "inactive";
+  const passwordUpdated = params?.password === "updated";
   const callbackUrl = params?.callbackUrl ?? "/admin";
   const dbHealth = await getDatabaseHealth();
   const databaseMessage =
@@ -62,6 +64,16 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
             </div>
           )}
 
+          {passwordUpdated ? (
+            <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+              Password updated. Sign in with your new password.
+            </div>
+          ) : null}
+          {hasInactiveAccount ? (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+              This admin account is deactivated. Ask a super admin to turn it back on.
+            </div>
+          ) : null}
           {hasInvalidCredentials && (
             <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
               Invalid email or password.

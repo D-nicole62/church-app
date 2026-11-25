@@ -38,6 +38,10 @@ test.describe("public forms", () => {
     await page.goto("/admin/messages");
     await expect(page.getByText(message)).toBeVisible();
     await expect(page.getByText(email)).toBeVisible();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.locator("li", { hasText: message }).getByRole("button", { name: "Delete message" }).click();
+    await expect(page.getByText("Message deleted.")).toBeVisible();
+    await expect(page.getByText(message)).toHaveCount(0);
   });
 
   test("visit form validates, saves a prayer request, and shows it in admin", async ({ page }) => {
@@ -86,5 +90,8 @@ test.describe("public forms", () => {
     await page.getByRole("button", { name: "Log interaction" }).click();
     await expect(page.getByText("Follow-up saved.")).toBeVisible();
     await expect(page.getByText(`Called about ${id}`)).toBeVisible();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Delete visitor" }).click();
+    await expect(page.getByText("Visitor deleted.")).toBeVisible();
   });
 });

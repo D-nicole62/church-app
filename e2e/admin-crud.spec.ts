@@ -66,7 +66,7 @@ test.describe("admin create, update, and delete", () => {
     await page.waitForURL(/\/admin\/events\/(?!new$)[^/]+$/);
     await expect(page.getByText("Rsvp Person")).toBeVisible();
     await page.getByRole("button", { name: "Send event reminder" }).click();
-    await expect(page.getByText("Event reminder queued and logged.")).toBeVisible();
+    await expect(page.getByText(/not configured|was not sent|EMAIL_FROM/i)).toBeVisible();
 
     await page.goto("/admin/notifications");
     await expect(page.getByText(rsvpEmail)).toBeVisible();
@@ -181,6 +181,12 @@ test.describe("admin create, update, and delete", () => {
 
     await page.getByRole("button", { name: "Delete household" }).click();
     await expect(page.getByText("Household removed.")).toBeVisible();
+
+    await page.goto("/admin/members");
+    await page.locator("tr", { hasText: firstName }).getByRole("link", { name: "View" }).click();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Delete member" }).click();
+    await expect(page.getByText("Member deleted.")).toBeVisible();
   });
 
   test("manual giving is recorded while online payments stay off", async ({ page }) => {
@@ -204,6 +210,9 @@ test.describe("admin create, update, and delete", () => {
     await expect(page.getByText(`E2E offering ${id}`)).toBeVisible();
     await expect(page.getByText("Successful")).toBeVisible();
     await expect(page.getByText("In person")).toBeVisible();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Delete transaction" }).click();
+    await expect(page.getByText("Giving record deleted.")).toBeVisible();
   });
 
   test("attendance records service and cell counts", async ({ page }) => {
@@ -227,6 +236,9 @@ test.describe("admin create, update, and delete", () => {
     await cellForm.getByRole("button", { name: "Save cell attendance" }).click();
     await expect(page.getByText("Cell group attendance saved.")).toBeVisible();
     await expect(page.getByText("Present: 7").first()).toBeVisible();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Delete row" }).first().click();
+    await expect(page.getByText(/attendance deleted/i)).toBeVisible();
   });
 
   test("reports and notification pages load", async ({ page }) => {

@@ -40,20 +40,47 @@ export const ADMIN_ROUTES = [
   "/admin/reports/groups",
   "/admin/reports/visitors",
   "/admin/messages",
+  "/admin/email",
+  "/admin/users",
+  "/admin/users/new",
+  "/admin/account/password",
 ] as const;
 
-export async function login(page: Page) {
+export const replacementAdminPassword = "E2eAdmin!2026";
+
+async function submitLogin(page: Page, password: string) {
   await page.goto("/admin/login");
   await page.getByLabel("Email").fill(adminEmail);
-  await page.getByLabel("Password").fill(adminPassword);
-  // A normal click waits on the server-action redirect and can time out
-  // after the dashboard has already rendered.
+  await page.getByLabel("Password").fill(password);
   await page.locator("form").evaluate((form: HTMLFormElement) => {
     form.requestSubmit();
   });
-  await expect(
-    page.getByRole("heading", { name: "TOD church operations" }),
-  ).toBeVisible();
+}
+
+export async function login(page: Page) {
+  await submitLogin(page, adminPassword);
+  const changePassword = page.getByRole("heading", { name: "Choose a new password" });
+  const invalid = page.getByText("Invalid email or password.");
+  const dashboard = page.getByRole("heading", { name: "TOD church operations" });
+  await expect(changePassword.or(invalid).or(dashboard)).toBeVisible();
+
+  if (await changePassword.isVisible()) {
+    await page.getByLabel("Current password").fill(adminPassword);
+    await page.getByLabel("New password", { exact: true }).fill(replacementAdminPassword);
+    await page.getByLabel("Confirm new password").fill(replacementAdminPassword);
+    await page
+      .locator("form")
+      .filter({ has: page.locator("#new-password") })
+      .evaluate((form: HTMLFormElement) => {
+        form.requestSubmit();
+      });
+    await expect(page.getByText("Password updated.")).toBeVisible();
+    await submitLogin(page, replacementAdminPassword);
+  } else if (await invalid.isVisible()) {
+    await submitLogin(page, replacementAdminPassword);
+  }
+
+  await expect(dashboard).toBeVisible();
 }
 
 export async function logout(page: Page) {

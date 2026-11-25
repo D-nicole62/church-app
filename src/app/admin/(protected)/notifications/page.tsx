@@ -1,12 +1,18 @@
+import { NotificationKind } from "@/generated/prisma/client";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Card } from "@/components/ui/card";
 import { getNotificationSummary } from "@/lib/notifications/actions";
 
-const KIND_LABELS: Record<string, string> = {
+const KIND_LABELS: Record<NotificationKind, string> = {
   EVENT_REMINDER: "Event reminder",
   GROUP_ANNOUNCEMENT: "Group announcement",
   VISITOR_FOLLOW_UP: "Visitor follow-up",
   VISITOR_AUTOMATED_REMINDER: "Visitor auto-reminder",
+  CONTACT_INQUIRY: "Contact message",
+  CONTACT_CONFIRMATION: "Contact confirmation",
+  VISITOR_SIGNUP: "Visit signup",
+  VISITOR_CONFIRMATION: "Visit confirmation",
+  EMAIL_TEST: "Test email",
 };
 
 const STATUS_LABELS: Record<string, string> = {

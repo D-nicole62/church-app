@@ -1,3 +1,4 @@
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,8 @@ import { getAdminLookups } from "@/lib/admin/lookups";
 import {
   createCellGroupAttendanceAction,
   createServiceAttendanceAction,
+  deleteCellAttendanceAction,
+  deleteServiceAttendanceAction,
 } from "@/lib/attendance/actions";
 import { prisma } from "@/lib/prisma";
 
@@ -55,6 +58,16 @@ export default async function AdminAttendancePage({
       {query.error === "missing-cell-required" ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
           Choose a cell group and a meeting date.
+        </p>
+      ) : null}
+      {query.success === "service-deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Service attendance deleted.
+        </p>
+      ) : null}
+      {query.success === "cell-deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Cell attendance deleted.
         </p>
       ) : null}
 
@@ -117,6 +130,13 @@ export default async function AdminAttendancePage({
                     M {record.menCount} · W {record.womenCount} · B {record.boysCount} · G{" "}
                     {record.girlsCount}
                   </p>
+                  <div className="mt-2">
+                    <ConfirmDeleteButton
+                      action={deleteServiceAttendanceAction.bind(null, record.id)}
+                      label="Delete row"
+                      confirm="Delete this service attendance row?"
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -136,6 +156,13 @@ export default async function AdminAttendancePage({
                   <p className="text-xs text-muted-foreground">
                     Present: {record.presentCount}
                   </p>
+                  <div className="mt-2">
+                    <ConfirmDeleteButton
+                      action={deleteCellAttendanceAction.bind(null, record.id)}
+                      label="Delete row"
+                      confirm="Delete this cell attendance row?"
+                    />
+                  </div>
                 </li>
               ))}
             </ul>

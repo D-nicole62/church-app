@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { HouseholdPanel } from "@/components/admin/HouseholdPanel";
 import { MemberForm } from "@/components/admin/MemberForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getAdminLookups } from "@/lib/admin/lookups";
-import { updateMemberAction } from "@/lib/members/actions";
+import { deleteMemberAction, updateMemberAction } from "@/lib/members/actions";
 import { prisma } from "@/lib/prisma";
 
 type MemberDetailPageProps = {
@@ -113,6 +114,11 @@ export default async function MemberDetailPage({
           households={lookups.households}
         />
       </div>
+      <ConfirmDeleteButton
+        action={deleteMemberAction.bind(null, id)}
+        label="Delete member"
+        confirm="Delete this member permanently? This removes their membership record."
+      />
     </div>
   );
 }

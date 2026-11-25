@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VisitorStatus } from "@/generated/prisma/client";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAdminLookups } from "@/lib/admin/lookups";
 import {
   addFollowUpAction,
+  deleteVisitorAction,
   updateVisitorStatusAction,
 } from "@/lib/visitors/actions";
 import { convertVisitorToMemberAction } from "@/lib/members/actions";
@@ -202,6 +204,12 @@ export default async function VisitorDetailPage({
           <Button type="submit">Log interaction</Button>
         </form>
       </Card>
+
+      <ConfirmDeleteButton
+        action={deleteVisitorAction.bind(null, id)}
+        label="Delete visitor"
+        confirm="Delete this visitor permanently? Their visit record will be removed."
+      />
     </div>
   );
 }
