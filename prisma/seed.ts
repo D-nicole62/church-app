@@ -1,4 +1,5 @@
 import { hash } from "bcryptjs";
+import { DEFAULT_SEED_PASSWORD } from "../src/lib/auth/password";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient, GroupType, UserRole } from "../src/generated/prisma/client";
@@ -140,8 +141,9 @@ async function main() {
   const adminEmail =
     process.env.ADMIN_SEED_EMAIL?.trim().toLowerCase() ||
     "admin@todassembly.com";
-  const adminPassword = process.env.ADMIN_SEED_PASSWORD || "ChangeMe123!";
+  const adminPassword = process.env.ADMIN_SEED_PASSWORD || DEFAULT_SEED_PASSWORD;
   const passwordHash = await hash(adminPassword, 12);
+  const mustChangePassword = adminPassword === DEFAULT_SEED_PASSWORD;
 
   await prisma.adminUser.upsert({
     where: { email: adminEmail },
@@ -149,12 +151,16 @@ async function main() {
       passwordHash,
       name: "Super Admin",
       role: UserRole.SUPER_ADMIN,
+      active: true,
+      ...(mustChangePassword ? { mustChangePassword: true } : {}),
     },
     create: {
       email: adminEmail,
       passwordHash,
       name: "Super Admin",
       role: UserRole.SUPER_ADMIN,
+      active: true,
+      mustChangePassword,
     },
   });
 

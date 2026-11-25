@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminMembersPage() {
+type MembersPageProps = {
+  searchParams?: Promise<{ success?: string }>;
+};
+
+export default async function AdminMembersPage({ searchParams }: MembersPageProps) {
+  const query = (await searchParams) ?? {};
   const members = await prisma.member.findMany({
     include: {
       person: { include: { campus: true, household: true } },
@@ -26,6 +31,12 @@ export default async function AdminMembersPage() {
           </Link>
         }
       />
+
+      {query.success === "deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Member deleted.
+        </p>
+      ) : null}
 
       <Card header={<p className="text-sm font-medium">All members</p>}>
         {members.length === 0 ? (

@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tabernacle of David Assembly website
 
-## Getting Started
+Next.js site and admin for the church. Online payments stay off until `PAYMENTS_ENABLED` is set to `true`.
 
-First, run the development server:
+## Local development
+
+Use a local Postgres database. Do not point `DATABASE_URL` at production.
 
 ```bash
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The seed admin is `ADMIN_SEED_EMAIL` (default `admin@todassembly.com`). If the password is still the setup password `ChangeMe123!`, the admin must choose a new password before using the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Checks:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run test:payments
+npm run test:mail
+npm run lint
+npm run typecheck
+npm run build
+npm run test:e2e
+```
 
-## Learn More
+`npm run test:ci` runs those against the local database and refuses hosted database URLs.
 
-To learn more about Next.js, take a look at the following resources:
+After this version is deployed, apply the schema to the host database with `npx prisma db push` before relying on admin users, deactivation, or the new notification types. Do that as a planned release step, not against production from a laptop by accident.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Email on Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Set **one** of the two options below, plus the shared variables. `EMAIL_PROVIDER=auto` uses SMTP when `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are all set. Otherwise it uses Resend. Set `EMAIL_PROVIDER` to `resend` or `smtp` to force a choice.
 
-## Deploy on Vercel
+Shared:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable | Purpose |
+| --- | --- |
+| `EMAIL_FROM` | Sender, for example `Tabernacle of David <church@yourdomain.com>` |
+| `CHURCH_INBOX_EMAIL` | Where contact and visit notices are delivered. Defaults to the public church email. |
+| `EMAIL_PROVIDER` | `auto`, `resend`, or `smtp` |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Resend
+
+| Variable | Purpose |
+| --- | --- |
+| `RESEND_API_KEY` | API key from Resend. This name is preferred. |
+| `EMAIL_PROVIDER_API_KEY` | Older fallback name, used only when `RESEND_API_KEY` is empty. |
+
+`EMAIL_FROM` must use a domain you have verified in Resend. Resend rejects unverified domains, which is why a valid key still fails if the sender is `church@todassembly.com` and that domain is not verified. The address `onboarding@resend.dev` can only email the owner of the Resend account. Leave `EMAIL_FROM` empty and the site will not call Resend; the admin email page and notification log show that reason.
+
+### Hostinger SMTP
+
+| Variable | Purpose |
+| --- | --- |
+| `SMTP_HOST` | `smtp.hostinger.com` |
+| `SMTP_PORT` | `465` for SSL, or `587` for STARTTLS |
+| `SMTP_SECURE` | `true` for port 465. Set `false` for port 587. |
+| `SMTP_USER` | The full mailbox address |
+| `SMTP_PASS` | The mailbox password. This is not an API key. |
+
+`EMAIL_FROM` should be that same mailbox. If you omit it, the site uses `SMTP_USER` when that value contains `@`.
+
+The admin page **Email** shows which provider is configured and can send a test. It never displays the API key or mailbox password. Failures are stored on the notification log with the provider's error.
+
+Contact-form submissions and visit sign-ups email the church inbox and send a confirmation to the person when they gave an email address. Event reminders and group announcements use the same mailer.

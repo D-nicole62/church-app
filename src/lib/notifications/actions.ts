@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import {
   NotificationChannel,
   NotificationKind,
+  NotificationStatus,
 } from "@/generated/prisma/client";
 import {
   resolveEventAudience,
@@ -29,10 +31,28 @@ function parseEventAudience(value: FormDataEntryValue | null): EventAudience {
   return "rsvps";
 }
 
+function redirectForDelivery(
+  path: string,
+  results: Awaited<ReturnType<typeof deliverBulkNotifications>>,
+  success: string,
+) {
+  const sent = results.filter((result) => result.status === NotificationStatus.SENT).length;
+  const problem = results.find((result) => result.status !== NotificationStatus.SENT);
+  if (sent === 0 && problem) {
+    const code =
+      problem.status === NotificationStatus.FAILED ? "email-failed" : "email-skipped";
+    redirect(
+      `${path}?error=${code}&detail=${encodeURIComponent(problem.error ?? "The message was not sent.")}`,
+    );
+  }
+  redirect(`${path}?success=${success}`);
+}
+
 export async function sendEventReminderAction(
   eventId: string,
   formData: FormData,
 ) {
+  await requireAdmin();
   const channel = parseChannel(formData.get("channel"));
   const audience = parseEventAudience(formData.get("audience"));
   const groupId = formData.get("groupId")?.toString().trim() || null;
@@ -74,16 +94,17 @@ export async function sendEventReminderAction(
     redirect(`/admin/events/${eventId}?error=no-recipients`);
   }
 
-  await deliverBulkNotifications(deliveries);
+  const results = await deliverBulkNotifications(deliveries);
   revalidatePath("/admin/notifications");
   revalidatePath(`/admin/events/${eventId}`);
-  redirect(`/admin/events/${eventId}?success=reminder-sent`);
+  redirectForDelivery(`/admin/events/${eventId}`, results, "reminder-sent");
 }
 
 export async function sendGroupAnnouncementAction(
   groupId: string,
   formData: FormData,
 ) {
+  await requireAdmin();
   const channel = parseChannel(formData.get("channel"));
   const subject =
     formData.get("subject")?.toString().trim() || "Group announcement";
@@ -123,10 +144,10 @@ export async function sendGroupAnnouncementAction(
     redirect(`/admin/groups/${groupId}?error=no-recipients`);
   }
 
-  await deliverBulkNotifications(deliveries);
+  const results = await deliverBulkNotifications(deliveries);
   revalidatePath("/admin/notifications");
   revalidatePath(`/admin/groups/${groupId}`);
-  redirect(`/admin/groups/${groupId}?success=announcement-sent`);
+  redirectForDelivery(`/admin/groups/${groupId}`, results, "announcement-sent");
 }
 
 export async function getNotificationSummary() {

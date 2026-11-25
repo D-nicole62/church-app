@@ -84,6 +84,11 @@ enum NotificationKind {
   GROUP_ANNOUNCEMENT
   VISITOR_FOLLOW_UP
   VISITOR_AUTOMATED_REMINDER
+  CONTACT_INQUIRY
+  CONTACT_CONFIRMATION
+  VISITOR_SIGNUP
+  VISITOR_CONFIRMATION
+  EMAIL_TEST
 }
 
 enum VisitorReminderReason {
@@ -99,6 +104,8 @@ model AdminUser {
   passwordHash         String
   name                 String?
   role                 UserRole               @default(FOLLOW_UP_OFFICER)
+  active               Boolean                @default(true)
+  mustChangePassword   Boolean                @default(false)
   assignedVisitors     Visitor[]              @relation("AssignedOfficer")
   followUpInteractions FollowUpInteraction[]
   createdAt            DateTime               @default(now())

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { HouseholdPanel } from "@/components/admin/HouseholdPanel";
 import { MemberForm } from "@/components/admin/MemberForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getAdminLookups } from "@/lib/admin/lookups";
-import { updateMemberAction } from "@/lib/members/actions";
+import { deleteMemberAction, updateMemberAction } from "@/lib/members/actions";
 import { prisma } from "@/lib/prisma";
 
 type MemberDetailPageProps = {
@@ -70,6 +71,21 @@ export default async function MemberDetailPage({
           </Link>
         }
       />
+      {query.success === "created" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Member created.
+        </p>
+      ) : null}
+      {query.success === "updated" ? (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+          Member updated.
+        </p>
+      ) : null}
+      {query.error === "missing-required" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          First name, last name, and campus are required.
+        </p>
+      ) : null}
       {query.success === "household" ? (
         <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
           Household saved. This member is attached.
@@ -98,6 +114,11 @@ export default async function MemberDetailPage({
           households={lookups.households}
         />
       </div>
+      <ConfirmDeleteButton
+        action={deleteMemberAction.bind(null, id)}
+        label="Delete member"
+        confirm="Delete this member permanently? This removes their membership record."
+      />
     </div>
   );
 }

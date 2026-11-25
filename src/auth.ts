@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { isDefaultSeedPassword } from "@/lib/auth/password";
 import { authConfig } from "@/auth.config";
 import {
   getDatabaseErrorMessage,
@@ -50,11 +51,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
+        if (!user.active) {
+          throw new Error("ACCOUNT_INACTIVE");
+        }
+
+        const usingDefaultPassword = isDefaultSeedPassword(password);
+        if (usingDefaultPassword && !user.mustChangePassword) {
+          await prisma.adminUser.update({
+            where: { id: user.id },
+            data: { mustChangePassword: true },
+          });
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.name ?? user.email,
           role: user.role,
+          mustChangePassword: user.mustChangePassword || usingDefaultPassword,
         };
       },
     }),

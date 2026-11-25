@@ -8,6 +8,18 @@ import {
   isDatabaseConnectionError,
 } from "@/lib/db-health";
 
+function errorText(error: unknown): string {
+  if (!error) return "";
+  if (error instanceof Error) {
+    const cause = "cause" in error ? errorText(error.cause) : "";
+    return `${error.message} ${cause}`;
+  }
+  if (typeof error === "object" && "err" in error) {
+    return errorText(error.err);
+  }
+  return "";
+}
+
 export async function loginAction(formData: FormData) {
   const email = formData.get("email")?.toString() ?? "";
   const password = formData.get("password")?.toString() ?? "";
@@ -25,14 +37,15 @@ export async function loginAction(formData: FormData) {
       redirectTo: callbackUrl,
     });
   } catch (error) {
+    const text = errorText(error);
+    if (text.includes("ACCOUNT_INACTIVE")) {
+      redirect("/admin/login?error=inactive");
+    }
+    if (text.includes("DATABASE_UNAVAILABLE")) {
+      redirect("/admin/login?error=database");
+    }
     if (error instanceof AuthError) {
       redirect("/admin/login?error=invalid");
-    }
-    if (
-      error instanceof Error &&
-      error.message === "DATABASE_UNAVAILABLE"
-    ) {
-      redirect("/admin/login?error=database");
     }
     if (isDatabaseConnectionError(error)) {
       redirect("/admin/login?error=database");

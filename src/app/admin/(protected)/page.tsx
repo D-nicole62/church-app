@@ -3,7 +3,12 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/finance/format";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminDashboardPage() {
+type DashboardPageProps = {
+  searchParams?: Promise<{ error?: string }>;
+};
+
+export default async function AdminDashboardPage({ searchParams }: DashboardPageProps) {
+  const query = (await searchParams) ?? {};
   const [campusCount, groupCount, memberCount, visitorCount, eventCount, financeTotal] =
     await Promise.all([
       prisma.campus.count(),
@@ -26,6 +31,11 @@ export default async function AdminDashboardPage() {
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
           TOD church operations
         </h1>
+        {query.error === "forbidden" ? (
+          <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            That page is only available to a super admin.
+          </p>
+        ) : null}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">

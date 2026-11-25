@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/card";
 import { pageMetadata } from "@/lib/seo";
+import { paymentsEnabled } from "@/lib/payments";
 import { CHURCH_NAME, CONTACT, PUBLIC_ADDRESS } from "@/lib/site";
 
 export const metadata = pageMetadata({
@@ -11,6 +12,8 @@ export const metadata = pageMetadata({
 });
 
 export default function PrivacyPage() {
+  const onlineGivingOpen = paymentsEnabled();
+
   return (
     <PageShell
       hero={
@@ -75,11 +78,21 @@ export default function PrivacyPage() {
             name, email, message, and an optional phone number.
           </li>
           <li>
-            <span className="font-medium text-foreground">Give.</span> The gift
-            amount and purpose, and either a mobile-money number or the name,
-            phone, email, and billing address needed to start a card payment.
-            Card numbers are entered on Lipila&apos;s hosted page. This website
-            does not store card numbers.
+            <span className="font-medium text-foreground">Give.</span>{" "}
+            {onlineGivingOpen ? (
+              <>
+                The gift amount and purpose, and either a mobile-money number
+                or the name, phone, email, and billing address needed to start
+                a card payment. Card numbers are entered on Lipila&apos;s hosted
+                page. This website does not store card numbers.
+              </>
+            ) : (
+              <>
+                Online giving is turned off for now, so this website is not
+                collecting payment details. You can give in person at Sunday
+                services, or contact the church.
+              </>
+            )}
           </li>
           <li>
             <span className="font-medium text-foreground">Event RSVP.</span>{" "}
@@ -93,8 +106,11 @@ export default function PrivacyPage() {
         <h2 className="mb-3 text-sm font-medium text-foreground">Why we keep it</h2>
         <p className="text-sm text-muted-foreground">
           Visit and contact details are used so the church can welcome you,
-          answer your message, and follow up if you asked us to. Giving details
-          are used to start and record the gift. Event RSVPs are used to know
+          answer your message, and follow up if you asked us to.{" "}
+          {onlineGivingOpen
+            ? "Giving details are used to start and record the gift."
+            : "While online giving is turned off, the website does not collect payment details."}{" "}
+          Event RSVPs are used to know
           who plans to attend. We do not sell this information.
         </p>
       </Card>
@@ -127,9 +143,15 @@ export default function PrivacyPage() {
           or call the numbers above and tell us which form you used and the
           name or email on it. We will delete the visit, contact, or RSVP
           record we can match. A completed gift may need to stay in the
-          church&apos;s giving records. The Give page also keeps a payment
-          reference in your browser&apos;s session storage until that payment
-          finishes or times out; closing the browser tab clears it.
+          church&apos;s giving records.
+          {onlineGivingOpen ? (
+            <>
+              {" "}
+              The Give page also keeps a payment reference in your
+              browser&apos;s session storage until that payment finishes or
+              times out; closing the browser tab clears it.
+            </>
+          ) : null}
         </p>
         <p className="mt-3 text-sm text-muted-foreground">
           <Link

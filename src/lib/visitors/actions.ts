@@ -6,8 +6,11 @@ import {
   FollowUpChannel,
   VisitorStatus,
 } from "@/generated/prisma/client";
+import { requireAdmin } from "@/lib/auth/guard";
 import { isDatabaseConfigured } from "@/lib/db";
+import { notifyChurchAndSender } from "@/lib/mail/notify";
 import { prisma } from "@/lib/prisma";
+import { CHURCH_NAME } from "@/lib/site";
 import { supabase } from "@/lib/supabase";
 import { isValidEmail, isValidZambianPhone } from "@/lib/validation/contact";
 
@@ -157,6 +160,27 @@ export async function registerVisitorAction(formData: FormData) {
 
   try {
     await createVisitorRecord(data, dateOfBirth, plannedVisitDate);
+    const details = [
+      `Name: ${data.firstName} ${data.lastName}`,
+      data.email ? `Email: ${data.email}` : "",
+      data.phone ? `Phone: ${data.phone}` : "",
+      data.serviceTime ? `Service: ${data.serviceTime}` : "",
+      data.plannedVisitDateRaw ? `Planned date: ${data.plannedVisitDateRaw}` : "",
+      data.prayerRequest ? `Prayer request: ${data.prayerRequest}` : "",
+      data.notes ? `Notes: ${data.notes}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    await notifyChurchAndSender({
+      churchKind: "VISITOR_SIGNUP",
+      churchSubject: `Visit planned by ${data.firstName} ${data.lastName}`,
+      churchBody: details,
+      senderKind: "VISITOR_CONFIRMATION",
+      senderEmail: data.email,
+      senderSubject: `We look forward to seeing you — ${CHURCH_NAME}`,
+      senderBody:
+        "Thank you for telling us you are coming. Our team will be ready to welcome you.",
+    });
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.error("[registerVisitorAction]", error);
@@ -173,6 +197,7 @@ export async function updateVisitorStatusAction(
   visitorId: string,
   formData: FormData,
 ) {
+  await requireAdmin();
   const statusRaw = formData.get("status")?.toString();
   const assignedOfficerId =
     formData.get("assignedOfficerId")?.toString().trim() || null;
@@ -195,6 +220,7 @@ export async function updateVisitorStatusAction(
 }
 
 export async function addFollowUpAction(visitorId: string, formData: FormData) {
+  await requireAdmin();
   const channelRaw = formData.get("channel")?.toString();
   const interactionDateRaw = formData.get("interactionDate")?.toString().trim();
   const outcome = formData.get("outcome")?.toString().trim() || null;
@@ -227,4 +253,24 @@ export async function addFollowUpAction(visitorId: string, formData: FormData) {
 
   revalidatePath(`/admin/visitors/${visitorId}`);
   redirect(`/admin/visitors/${visitorId}?success=follow-up-added`);
+}
+
+export async function deleteVisitorAction(visitorId: string) {
+  await requireAdmin();
+  const visitor = await prisma.visitor.findUnique({
+    where: { id: visitorId },
+    include: { person: { include: { member: true } } },
+  });
+  if (!visitor) {
+    redirect("/admin/visitors?error=not-found");
+  }
+
+  if (visitor.person.member) {
+    await prisma.visitor.delete({ where: { id: visitorId } });
+  } else {
+    await prisma.person.delete({ where: { id: visitor.personId } });
+  }
+
+  revalidatePath("/admin/visitors");
+  redirect("/admin/visitors?success=deleted");
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import {
   STATUS_LABELS,
   formatCurrency,
 } from "@/lib/finance/format";
+import { deleteFinanceTransactionAction } from "@/lib/finance/actions";
 import { prisma } from "@/lib/prisma";
 
 type FinanceDetailPageProps = {
@@ -125,6 +127,11 @@ export default async function FinanceDetailPage({ params }: FinanceDetailPagePro
           </p>
         </Card>
       </div>
+      <ConfirmDeleteButton
+        action={deleteFinanceTransactionAction.bind(null, id)}
+        label="Delete transaction"
+        confirm="Delete this giving record permanently?"
+      />
     </div>
   );
 }

@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import { prisma } from "@/lib/prisma";
 
 export async function createServiceAttendanceAction(formData: FormData) {
+  await requireAdmin();
   const serviceDateRaw = formData.get("serviceDate")?.toString().trim();
   const serviceName = formData.get("serviceName")?.toString().trim() ?? "";
   const campusId = formData.get("campusId")?.toString().trim() || null;
@@ -37,6 +39,7 @@ export async function createServiceAttendanceAction(formData: FormData) {
 }
 
 export async function createCellGroupAttendanceAction(formData: FormData) {
+  await requireAdmin();
   const groupId = formData.get("groupId")?.toString().trim();
   const meetingDateRaw = formData.get("meetingDate")?.toString().trim();
   const presentCount = Number.parseInt(
@@ -60,4 +63,18 @@ export async function createCellGroupAttendanceAction(formData: FormData) {
 
   revalidatePath("/admin/attendance");
   redirect("/admin/attendance?success=cell-recorded");
+}
+
+export async function deleteServiceAttendanceAction(recordId: string) {
+  await requireAdmin();
+  await prisma.serviceAttendance.delete({ where: { id: recordId } }).catch(() => null);
+  revalidatePath("/admin/attendance");
+  redirect("/admin/attendance?success=service-deleted");
+}
+
+export async function deleteCellAttendanceAction(recordId: string) {
+  await requireAdmin();
+  await prisma.cellGroupAttendance.delete({ where: { id: recordId } }).catch(() => null);
+  revalidatePath("/admin/attendance");
+  redirect("/admin/attendance?success=cell-deleted");
 }

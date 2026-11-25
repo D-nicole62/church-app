@@ -1,63 +1,30 @@
 import { absoluteNotificationImageUrl } from "@/lib/notifications/images";
 import type { DeliveryResult, EmailPayload } from "@/lib/notifications/types";
+import { composeMessage, deliverEmail } from "@/lib/mail/send";
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
+/**
+ * Sends through the shared mailer (Resend or SMTP).
+ * A missing EMAIL_FROM used to fall back to church@todassembly.com, which
+ * Resend rejects unless that domain is verified. The mailer now reports that
+ * instead of calling the provider with an unverified sender.
+ */
 export async function sendEmail(payload: EmailPayload): Promise<DeliveryResult> {
-  const apiKey =
-    process.env.EMAIL_PROVIDER_API_KEY?.trim() ||
-    process.env.RESEND_API_KEY?.trim();
-
-  if (!apiKey) {
-    return { ok: false, skipped: true, error: "Email provider not configured" };
-  }
-
-  const from =
-    process.env.EMAIL_FROM?.trim() || "TOD Assembly <church@todassembly.com>";
   const imageUrl = payload.imageUrl
     ? absoluteNotificationImageUrl(payload.imageUrl)
     : null;
-  const html = imageUrl
-    ? `<p>${escapeHtml(payload.body).replaceAll("\n", "<br>")}</p><p><img src="${escapeHtml(imageUrl)}" alt="" style="max-width:100%;height:auto;" /></p>`
-    : undefined;
-
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [payload.to],
-        subject: payload.subject,
-        text: imageUrl ? `${payload.body}\n\n${imageUrl}` : payload.body,
-        ...(html ? { html } : {}),
-      }),
-      signal: AbortSignal.timeout(20_000),
-    });
-
-    const data = (await response.json()) as { id?: string; message?: string };
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: data.message || `Email API error (${response.status})`,
-      };
-    }
-
-    return { ok: true, providerId: data.id };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : "Email send failed",
-    };
-  }
+  const message = composeMessage({
+    to: payload.to,
+    subject: payload.subject,
+    intro: "A message from the church",
+    body: payload.body,
+    imageUrl,
+    replyTo: payload.replyTo,
+  });
+  const result = await deliverEmail(message);
+  return {
+    ok: result.ok,
+    skipped: result.skipped,
+    error: result.error,
+    providerId: result.providerId,
+  };
 }

@@ -3,13 +3,20 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getFinanceSummary } from "@/lib/finance/actions";
+import { paymentsEnabled } from "@/lib/payments";
 import {
   SOURCE_LABELS,
   STATUS_LABELS,
   formatCurrency,
 } from "@/lib/finance/format";
 
-export default async function AdminFinancePage() {
+type FinancePageProps = {
+  searchParams?: Promise<{ success?: string }>;
+};
+
+export default async function AdminFinancePage({ searchParams }: FinancePageProps) {
+  const query = (await searchParams) ?? {};
+  const onlineGivingOpen = paymentsEnabled();
   const { transactions, successfulTotal, pendingCount, syncPending } =
     await getFinanceSummary();
 
@@ -24,6 +31,20 @@ export default async function AdminFinancePage() {
           </Link>
         }
       />
+
+      {query.success === "deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Giving record deleted.
+        </p>
+      ) : null}
+
+      {onlineGivingOpen ? null : (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          Online giving is turned off. Visitors cannot start a payment from the
+          website. Record cash, in-person, or bank-transfer gifts with Record
+          giving. There is no payment-gateway setting to change here.
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card header={<p className="text-sm font-medium">Successful giving</p>}>
@@ -47,8 +68,9 @@ export default async function AdminFinancePage() {
       <Card header={<p className="text-sm font-medium">All transactions</p>}>
         {transactions.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No transactions yet. Lipila gifts appear here after payment
-            confirmation, or record cash/in-person giving manually.
+            {onlineGivingOpen
+              ? "No transactions yet. Lipila gifts appear here after payment confirmation, or record cash/in-person giving manually."
+              : "No transactions yet. Online payments are paused, so new online gifts will not arrive until giving is turned back on. Record cash or in-person giving manually."}
           </p>
         ) : (
           <div className="overflow-x-auto">

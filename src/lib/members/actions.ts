@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import { formatHouseholdName } from "@/lib/households/display";
 import { prisma } from "@/lib/prisma";
 import { queueSageSync } from "@/lib/integrations/sage";
@@ -73,6 +74,7 @@ async function resolveHousehold(
 }
 
 export async function createMemberAction(formData: FormData) {
+  await requireAdmin();
   const data = memberFormData(formData);
 
   if (!data.firstName || !data.lastName || !data.campusId) {
@@ -131,6 +133,7 @@ export async function createMemberAction(formData: FormData) {
 }
 
 export async function updateMemberAction(memberId: string, formData: FormData) {
+  await requireAdmin();
   const data = memberFormData(formData);
 
   if (!data.firstName || !data.lastName || !data.campusId) {
@@ -199,6 +202,7 @@ export async function updateMemberAction(memberId: string, formData: FormData) {
 }
 
 export async function convertVisitorToMemberAction(visitorId: string) {
+  await requireAdmin();
   const visitor = await prisma.visitor.findUnique({
     where: { id: visitorId },
     include: { person: { include: { member: true } } },
@@ -239,4 +243,26 @@ export async function convertVisitorToMemberAction(visitorId: string) {
   revalidatePath("/admin/visitors");
   revalidatePath("/admin/members");
   redirect(`/admin/members/${member.id}?success=converted`);
+}
+
+export async function deleteMemberAction(memberId: string) {
+  await requireAdmin();
+  const member = await prisma.member.findUnique({
+    where: { id: memberId },
+    include: { person: { include: { visitor: true } } },
+  });
+  if (!member) {
+    redirect("/admin/members?error=not-found");
+  }
+
+  if (member.person.visitor) {
+    await prisma.member.delete({ where: { id: memberId } });
+  } else {
+    await prisma.person.delete({ where: { id: member.personId } });
+  }
+
+  revalidatePath("/admin/members");
+  revalidatePath("/admin/groups");
+  revalidatePath("/admin/households");
+  redirect("/admin/members?success=deleted");
 }

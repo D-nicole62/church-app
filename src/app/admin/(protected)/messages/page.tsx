@@ -1,8 +1,15 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { Card } from "@/components/ui/card";
+import { deleteContactInquiryAction } from "@/lib/contact/actions";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminMessagesPage() {
+type MessagesPageProps = {
+  searchParams?: Promise<{ success?: string }>;
+};
+
+export default async function AdminMessagesPage({ searchParams }: MessagesPageProps) {
+  const query = (await searchParams) ?? {};
   let messages: Array<{
     id: string;
     name: string;
@@ -28,6 +35,11 @@ export default async function AdminMessagesPage() {
         title="Contact messages"
         description="Messages sent from the public contact form."
       />
+      {query.success === "deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Message deleted.
+        </p>
+      ) : null}
       <Card>
         {unavailable ? (
           <p className="text-sm text-muted-foreground">
@@ -49,6 +61,13 @@ export default async function AdminMessagesPage() {
                 <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
                   {item.message}
                 </p>
+                <div className="mt-3">
+                  <ConfirmDeleteButton
+                    action={deleteContactInquiryAction.bind(null, item.id)}
+                    label="Delete message"
+                    confirm="Delete this contact message permanently?"
+                  />
+                </div>
               </li>
             ))}
           </ul>

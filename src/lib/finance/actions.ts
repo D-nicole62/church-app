@@ -6,6 +6,7 @@ import {
   TransactionSource,
   TransactionStatus,
 } from "@/generated/prisma/client";
+import { requireAdmin } from "@/lib/auth/guard";
 import { queueSageSync } from "@/lib/integrations/sage";
 import { prisma } from "@/lib/prisma";
 
@@ -24,6 +25,7 @@ function parseManualSource(value: FormDataEntryValue | null): TransactionSource 
 }
 
 export async function createManualTransactionAction(formData: FormData) {
+  await requireAdmin();
   const source = parseManualSource(formData.get("source"));
   const amountRaw = formData.get("amount")?.toString().trim() ?? "";
   const purpose = formData.get("purpose")?.toString().trim() || null;
@@ -100,4 +102,14 @@ export async function getFinanceSummary() {
     pendingCount,
     syncPending,
   };
+}
+
+export async function deleteFinanceTransactionAction(transactionId: string) {
+  await requireAdmin();
+  await prisma.syncQueue.deleteMany({
+    where: { entityType: "finance_transaction", entityId: transactionId },
+  });
+  await prisma.financeTransaction.delete({ where: { id: transactionId } }).catch(() => null);
+  revalidatePath("/admin/finance");
+  redirect("/admin/finance?success=deleted");
 }

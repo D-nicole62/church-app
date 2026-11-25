@@ -12,7 +12,12 @@ const STATUS_LABELS: Record<string, string> = {
   NO_LONGER_ATTENDING: "No longer attending",
 };
 
-export default async function AdminVisitorsPage() {
+type VisitorsPageProps = {
+  searchParams?: Promise<{ success?: string; error?: string }>;
+};
+
+export default async function AdminVisitorsPage({ searchParams }: VisitorsPageProps) {
+  const query = (await searchParams) ?? {};
   const visitors = await prisma.visitor.findMany({
     include: {
       person: { include: { campus: true } },
@@ -28,6 +33,12 @@ export default async function AdminVisitorsPage() {
         title="Visitors"
         description="Track visitor intake, follow-up assignments, and conversion to membership."
       />
+
+      {query.success === "deleted" ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Visitor deleted.
+        </p>
+      ) : null}
 
       <Card header={<p className="text-sm font-medium">Visitor pipeline</p>}>
         {visitors.length === 0 ? (

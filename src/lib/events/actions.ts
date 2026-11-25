@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import { parseChurchDateTimeLocal } from "@/lib/events/datetime";
 import { saveUploadedImage } from "@/lib/notifications/images";
 import { prisma } from "@/lib/prisma";
@@ -38,6 +39,7 @@ async function uploadedEventImage(formData: FormData, returnPath: string) {
 }
 
 export async function createEventAction(formData: FormData) {
+  await requireAdmin();
   const data = eventFormData(formData);
   if (!data.title || !data.startsAt) {
     redirect("/admin/events/new?error=missing-required");
@@ -64,6 +66,7 @@ export async function createEventAction(formData: FormData) {
 }
 
 export async function updateEventAction(eventId: string, formData: FormData) {
+  await requireAdmin();
   const data = eventFormData(formData);
   if (!data.title || !data.startsAt) {
     redirect(`/admin/events/${eventId}?error=missing-required`);
@@ -93,6 +96,7 @@ export async function updateEventAction(eventId: string, formData: FormData) {
 }
 
 export async function deleteEventAction(eventId: string) {
+  await requireAdmin();
   await prisma.event.delete({ where: { id: eventId } });
   revalidatePath("/admin/events");
   revalidatePath("/events");

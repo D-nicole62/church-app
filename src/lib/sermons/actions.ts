@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import { SermonMediaType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
@@ -24,6 +25,7 @@ function sermonFormData(formData: FormData) {
 }
 
 export async function createSermonAction(formData: FormData) {
+  await requireAdmin();
   const data = sermonFormData(formData);
   if (!data.title || !data.mediaUrl || !data.date || Number.isNaN(data.date.getTime())) {
     redirect("/admin/sermons/new?error=missing-required");
@@ -46,6 +48,7 @@ export async function createSermonAction(formData: FormData) {
 }
 
 export async function updateSermonAction(sermonId: string, formData: FormData) {
+  await requireAdmin();
   const data = sermonFormData(formData);
   if (!data.title || !data.mediaUrl || !data.date || Number.isNaN(data.date.getTime())) {
     redirect(`/admin/sermons/${sermonId}?error=missing-required`);
@@ -70,6 +73,7 @@ export async function updateSermonAction(sermonId: string, formData: FormData) {
 }
 
 export async function deleteSermonAction(sermonId: string) {
+  await requireAdmin();
   await prisma.sermon.delete({ where: { id: sermonId } });
   revalidatePath("/admin/sermons");
   revalidatePath("/sermons");

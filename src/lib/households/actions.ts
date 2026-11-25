@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/guard";
 import { formatHouseholdName } from "@/lib/households/display";
 import { prisma } from "@/lib/prisma";
 
 export async function createHouseholdAction(formData: FormData) {
+  await requireAdmin();
   const rawName = formData.get("name")?.toString().trim() ?? "";
   if (!rawName) {
     redirect("/admin/households/new?error=missing-name");
@@ -19,6 +21,7 @@ export async function createHouseholdAction(formData: FormData) {
 }
 
 export async function updateHouseholdAction(householdId: string, formData: FormData) {
+  await requireAdmin();
   const rawName = formData.get("name")?.toString().trim() ?? "";
   if (!rawName) {
     redirect(`/admin/households/${householdId}?error=missing-name`);
@@ -35,6 +38,7 @@ export async function updateHouseholdAction(householdId: string, formData: FormD
 }
 
 export async function deleteHouseholdAction(householdId: string) {
+  await requireAdmin();
   await prisma.household.delete({ where: { id: householdId } });
   revalidatePath("/admin/households");
   revalidatePath("/admin/members");
@@ -45,6 +49,7 @@ export async function attachMemberToHouseholdAction(
   householdId: string,
   formData: FormData,
 ) {
+  await requireAdmin();
   const memberId = formData.get("memberId")?.toString().trim();
   if (!memberId) {
     redirect(`/admin/households/${householdId}?error=missing-member`);
@@ -75,6 +80,7 @@ export async function removeMemberFromHouseholdAction(
   householdId: string,
   personId: string,
 ) {
+  await requireAdmin();
   await prisma.person.update({
     where: { id: personId },
     data: { householdId: null, householdRole: null },
@@ -89,6 +95,7 @@ export async function assignHouseholdFromProfileAction(
   memberId: string,
   formData: FormData,
 ) {
+  await requireAdmin();
   const member = await prisma.member.findUnique({
     where: { id: memberId },
     select: { personId: true },
