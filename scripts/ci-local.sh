@@ -26,7 +26,8 @@ export ADMIN_SEED_PASSWORD="${ADMIN_SEED_PASSWORD:-ChangeMe123!}"
 export CRON_SECRET="${CRON_SECRET:-local-cron-secret}"
 export CI=true
 
-echo "Pushing schema and seeding the local database..."
+echo "Generating the Prisma client, then pushing and seeding the local database..."
+npx prisma generate
 npx prisma db push
 npx prisma db seed
 
