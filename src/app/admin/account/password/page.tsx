@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { changePasswordAction, signOutAction } from "./actions";
+import { SignOutButton } from "@/components/admin/SignOutButton";
+import { changePasswordAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -79,11 +80,9 @@ export default async function ChangePasswordPage({ searchParams }: PasswordPageP
             </Button>
           </form>
         </Card>
-        <form action={signOutAction} className="text-center">
-          <button type="submit" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
-            Sign out
-          </button>
-        </form>
+        <p className="text-center">
+          <SignOutButton className="text-sm font-medium text-primary underline-offset-4 hover:underline" />
+        </p>
         {admin.mustChangePassword ? null : (
           <p className="text-center text-sm">
             <Link href="/admin" className="font-medium text-primary underline-offset-4 hover:underline">

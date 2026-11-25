@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { signOut } from "@/auth";
+import { SignOutButton } from "@/components/admin/SignOutButton";
 import { ROLE_LABELS } from "@/lib/auth/roles";
 import { CHURCH_NAME_SHORT } from "@/lib/site";
 
@@ -76,20 +76,7 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
             >
               Change password
             </Link>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/admin/login" });
-              }}
-              className="mt-2"
-            >
-              <button
-                type="submit"
-                className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-              >
-                Sign out
-              </button>
-            </form>
+            <SignOutButton className="mt-2 text-xs font-medium text-primary underline-offset-4 hover:underline" />
           </div>
         </aside>
 
@@ -108,19 +95,7 @@ export function AdminShell({ children, user, currentPath }: AdminShellProps) {
                   Change password
                 </Link>
               </div>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/admin/login" });
-                }}
-              >
-                <button
-                  type="submit"
-                  className="inline-flex min-h-11 items-center text-sm font-medium text-primary"
-                >
-                  Sign out
-                </button>
-              </form>
+              <SignOutButton className="inline-flex min-h-11 items-center text-sm font-medium text-primary" />
             </div>
             <nav
               className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1"
