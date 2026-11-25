@@ -103,7 +103,7 @@ function DesktopDropdown({
       {open ? (
         <div
           id={panelId}
-          className={`absolute top-full z-40 mt-1 max-h-80 w-72 max-w-[min(18rem,calc(100vw-2rem))] overflow-y-auto rounded-xl border border-border bg-card p-2 text-sm shadow-lg ${
+          className={`absolute top-full z-10 mt-1 max-h-80 w-72 max-w-[min(18rem,calc(100vw-2rem))] overflow-y-auto rounded-xl border border-border bg-card p-2 text-sm shadow-lg ${
             align === "end" ? "right-0" : "left-0"
           }`}
         >
@@ -194,8 +194,9 @@ export function SiteHeader() {
     setDesktopMenu((current) => (current === menu ? null : menu));
   }
 
+  // backdrop-blur traps descendants. z-30 keeps menus above page images and cards.
   return (
-    <header className="border-b border-border bg-card/95 backdrop-blur-sm">
+    <header className="relative z-30 border-b border-border bg-card/95 backdrop-blur-sm">
       <div className="mx-auto flex min-w-0 max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
         <Link
           href="/"
