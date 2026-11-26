@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { SermonMediaType } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { extractYouTubeVideoId } from "@/lib/sermons/media";
 
 export const runtime = "nodejs";
 
@@ -26,6 +27,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   let body: {
     title?: string;
     speaker?: string | null;
+    series?: string | null;
+    scripture?: string | null;
     date?: string;
     description?: string | null;
     mediaType?: string;
@@ -52,18 +55,22 @@ export async function PATCH(request: Request, context: RouteContext) {
       ? body.mediaType
       : existing.mediaType;
 
+  const mediaUrl = body.mediaUrl?.trim() || existing.mediaUrl;
   const sermon = await prisma.sermon.update({
     where: { id },
     data: {
       title: body.title?.trim() || existing.title,
       speaker: body.speaker === undefined ? existing.speaker : body.speaker?.trim() || null,
+      series: body.series === undefined ? existing.series : body.series?.trim() || null,
+      scripture: body.scripture === undefined ? existing.scripture : body.scripture?.trim() || null,
       date,
       description:
         body.description === undefined
           ? existing.description
           : body.description?.trim() || null,
       mediaType,
-      mediaUrl: body.mediaUrl?.trim() || existing.mediaUrl,
+      mediaUrl,
+      youtubeVideoId: extractYouTubeVideoId(mediaUrl),
     },
   });
 

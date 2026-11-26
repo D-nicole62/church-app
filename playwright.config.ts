@@ -15,6 +15,8 @@ function serverEnv(): Record<string, string> {
   env.CRON_SECRET = env.CRON_SECRET || "local-cron-secret";
   env.ADMIN_SEED_EMAIL = env.ADMIN_SEED_EMAIL || "admin@todassembly.com";
   env.ADMIN_SEED_PASSWORD = env.ADMIN_SEED_PASSWORD || "ChangeMe123!";
+  env.YOUTUBE_FEED_FIXTURE = "e2e";
+  delete env.YOUTUBE_API_KEY;
   return env;
 }
 

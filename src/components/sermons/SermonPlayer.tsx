@@ -1,14 +1,15 @@
-import { SermonMediaType } from "@/generated/prisma/client";
-import { youtubeEmbedUrl } from "@/lib/sermons/media";
+import { YouTubeFacade } from "@/components/sermons/YouTubeFacade";
+import { extractYouTubeVideoId } from "@/lib/sermons/media";
 
 type SermonPlayerProps = {
-  mediaType: SermonMediaType;
+  mediaType: "AUDIO" | "VIDEO";
   mediaUrl: string;
   title: string;
+  priority?: boolean;
 };
 
-export function SermonPlayer({ mediaType, mediaUrl, title }: SermonPlayerProps) {
-  if (mediaType === SermonMediaType.AUDIO) {
+export function SermonPlayer({ mediaType, mediaUrl, title, priority = false }: SermonPlayerProps) {
+  if (mediaType === "AUDIO") {
     return (
       <audio controls preload="none" className="mt-3 w-full" src={mediaUrl}>
         <a href={mediaUrl}>Listen to {title}</a>
@@ -16,17 +17,11 @@ export function SermonPlayer({ mediaType, mediaUrl, title }: SermonPlayerProps) 
     );
   }
 
-  const embed = youtubeEmbedUrl(mediaUrl);
-  if (embed) {
+  const videoId = extractYouTubeVideoId(mediaUrl);
+  if (videoId) {
     return (
-      <div className="mt-3 aspect-video overflow-hidden rounded-xl bg-black">
-        <iframe
-          title={title}
-          src={embed}
-          className="h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+      <div className="overflow-hidden rounded-xl">
+        <YouTubeFacade videoId={videoId} title={title} priority={priority} />
       </div>
     );
   }

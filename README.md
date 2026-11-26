@@ -21,6 +21,7 @@ Checks:
 ```bash
 npm run test:payments
 npm run test:mail
+npm run test:sermons
 npm run lint
 npm run typecheck
 npm run build
@@ -29,7 +30,21 @@ npm run test:e2e
 
 `npm run test:ci` runs those against the local database and refuses hosted database URLs.
 
-After this version is deployed, apply the schema to the host database with `npx prisma db push` before relying on admin users, deactivation, or the new notification types. Do that as a planned release step, not against production from a laptop by accident.
+After this version is deployed, apply the schema to the host database with `npx prisma db push` before relying on admin users, deactivation, the new notification types, or sermon series, scripture, and YouTube import. Do that as a planned release step, not against production from a laptop by accident.
+
+## Sermons and YouTube
+
+The Sermons page lists videos from the church YouTube channel (channel id `UCMQ7zUtOm8K4vs6t4nkFbdw`). It reads the public RSS feed at `https://www.youtube.com/feeds/videos.xml?channel_id=UCMQ7zUtOm8K4vs6t4nkFbdw`, so it works with no API key. That feed is cached for about an hour. If YouTube cannot be reached, the page keeps the uploads playlist and a link to the channel.
+
+Sermons an admin typed in stay on the page. A sermon whose media URL is a YouTube link is matched to that video, so the title is not listed twice. In **Admin → Sermons**, use **Import** on one video or **Sync from YouTube** to save it, then add the speaker, series, and scripture.
+
+Set this only when you want more than the RSS feed’s latest 15 videos, a “More sermons” page, or a **Live now** banner while the channel is streaming:
+
+| Variable | Purpose |
+| --- | --- |
+| `YOUTUBE_API_KEY` | YouTube Data API v3 key. Optional. Leave it unset to use the public RSS feed only. |
+
+Create the key in Google Cloud, enable YouTube Data API v3, and restrict the key to that API. The site uses it on the server only; it is not sent to the browser. The video list still refreshes about once an hour. The live check runs about every 15 minutes. A live search costs more of the daily API quota than listing videos, and the default Google quota covers that pace. If the key is missing, rejected, or out of quota, the page falls back to the RSS feed and hides the live banner.
 
 ## Email on Vercel
 
