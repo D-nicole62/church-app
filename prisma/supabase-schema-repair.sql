@@ -42,10 +42,10 @@ BEGIN
   END IF;
 END $$;
 
--- Legacy columns (region on person/campus/group directly)
+-- Group.regionId was replaced by zoneId. Campus.regionId and Person.regionId
+-- are still present in production (nullable text, FK to Region.id) and must
+-- be kept so existing region assignments are not deleted.
 ALTER TABLE "Group" DROP COLUMN IF EXISTS "regionId";
-ALTER TABLE "Person" DROP COLUMN IF EXISTS "regionId";
-ALTER TABLE "Campus" DROP COLUMN IF EXISTS "regionId";
 
 -- Giving: cancelled payments, and sermons
 ALTER TYPE "TransactionStatus" ADD VALUE IF NOT EXISTS 'CANCELLED';

@@ -116,6 +116,8 @@ model Region {
   id        String   @id @default(cuid())
   name      String   @unique
   zones     Zone[]
+  campuses  Campus[]
+  persons   Person[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -135,6 +137,8 @@ model Zone {
 model Campus {
   id        String   @id @default(cuid())
   name      String   @unique
+  regionId  String?
+  region    Region?  @relation(fields: [regionId], references: [id], onDelete: SetNull)
   persons   Person[]
   groups    Group[]
   events    Event[]
@@ -161,6 +165,8 @@ model Person {
   dateOfBirth      DateTime?
   campusId         String?
   campus           Campus?           @relation(fields: [campusId], references: [id])
+  regionId         String?
+  region           Region?           @relation(fields: [regionId], references: [id], onDelete: SetNull)
   householdId      String?
   household        Household?        @relation(fields: [householdId], references: [id], onDelete: SetNull)
   householdRole    String?
