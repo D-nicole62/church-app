@@ -84,8 +84,9 @@ export async function login(page: Page) {
 }
 
 export async function logout(page: Page) {
+  const origin = new URL(page.url()).origin;
   await page.getByRole("button", { name: "Sign out" }).first().click();
-  await expect(page).toHaveURL(/\/admin\/login/);
+  await expect(page).toHaveURL(`${origin}/admin/login`);
   await expect(page.getByRole("heading", { name: "Admin sign in" })).toBeVisible();
 }
 

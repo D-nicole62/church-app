@@ -16,6 +16,18 @@ export const authConfig = {
   },
   providers: [],
   callbacks: {
+    redirect({ url, baseUrl }) {
+      // Path-only targets stay on the host the browser is already using.
+      // Sign-out was returning http://localhost:3000 while the session cookie
+      // lived on http://127.0.0.1:3000, and those hosts do not share cookies.
+      if (url.startsWith("/")) return url;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch {
+        return baseUrl;
+      }
+      return baseUrl;
+    },
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
