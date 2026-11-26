@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test:payments": "tsx --test src/lib/payments.test.ts",
     "test:mail": "tsx --test src/lib/mail/send.test.ts src/lib/auth/password.test.ts",
+    "test:sermons": "tsx --test src/lib/sermons/youtube.test.ts",
     "test:e2e": "playwright test",
     "test:ci": "bash scripts/ci-local.sh",
     "db:generate": "prisma generate",

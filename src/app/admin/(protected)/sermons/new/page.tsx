@@ -15,11 +15,16 @@ export default async function NewSermonPage({ searchParams }: NewSermonPageProps
       <AdminPageHeader
         eyebrow="Sermons"
         title="Add sermon"
-        description="Audio sermons use an mp3 URL. Video sermons use a YouTube link or an mp4 URL."
+        description="Audio sermons use an mp3 URL. Video sermons use a YouTube link or an mp4 URL. A YouTube link is matched to the channel list so it is not shown twice."
       />
       {query.error === "missing-required" ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
           Title, date, and media URL are required.
+        </p>
+      ) : null}
+      {query.error === "duplicate-video" ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          Another sermon already uses that YouTube video.
         </p>
       ) : null}
       <Card header={<p className="text-sm font-medium">Sermon details</p>}>

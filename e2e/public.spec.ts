@@ -107,12 +107,12 @@ test.describe("public site", () => {
     expect(robotsBody).toContain("Sitemap:");
   });
 
-  test("sermons page embeds the church YouTube uploads", async ({ page }) => {
+  test("sermons page lists channel videos or keeps the uploads player", async ({ page }) => {
     await page.goto("/sermons");
-    const frame = page.locator('iframe[title*="YouTube"]');
-    await expect(frame).toBeVisible();
-    await expect(frame).toHaveAttribute("src", /youtube-nocookie\.com\/embed\/videoseries/);
     await expect(page.getByRole("link", { name: "Watch on YouTube" })).toBeVisible();
+    const play = page.getByRole("link", { name: /^Play / });
+    const fallback = page.locator('iframe[src*="videoseries"]');
+    await expect(play.or(fallback).first()).toBeVisible();
   });
 
   test("events page lists gatherings or a clear empty state", async ({ page }) => {

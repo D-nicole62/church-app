@@ -369,15 +369,18 @@ enum SermonMediaType {
 }
 
 model Sermon {
-  id          String          @id @default(cuid())
-  title       String
-  speaker     String?
-  date        DateTime
-  description String?
-  mediaType   SermonMediaType
-  mediaUrl    String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id             String          @id @default(cuid())
+  title          String
+  speaker        String?
+  series         String?
+  scripture      String?
+  date           DateTime
+  description    String?
+  mediaType      SermonMediaType
+  mediaUrl       String
+  youtubeVideoId String?         @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model VisitorReminderLog {

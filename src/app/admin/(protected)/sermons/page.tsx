@@ -1,24 +1,38 @@
 import Link from "next/link";
 import { SermonMediaType } from "@/generated/prisma/client";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { YouTubeImportPanel } from "@/components/admin/YouTubeImportPanel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { prisma } from "@/lib/prisma";
+import { extractYouTubeVideoId } from "@/lib/sermons/media";
+import { listStoredSermons } from "@/lib/sermons/store";
+import { loadYouTubeCatalog } from "@/lib/sermons/youtube";
 
 type AdminSermonsPageProps = {
-  searchParams?: Promise<{ success?: string }>;
+  searchParams?: Promise<{ success?: string; error?: string; count?: string }>;
 };
 
 export default async function AdminSermonsPage({ searchParams }: AdminSermonsPageProps) {
   const query = (await searchParams) ?? {};
-  const sermons = await prisma.sermon.findMany({ orderBy: { date: "desc" } });
+  const [sermons, youtube] = await Promise.all([
+    listStoredSermons(),
+    loadYouTubeCatalog(null),
+  ]);
+  const saved = sermons.flatMap((sermon) => {
+    const videoId = sermon.youtubeVideoId || extractYouTubeVideoId(sermon.mediaUrl);
+    return videoId ? [{ videoId, sermonId: sermon.id }] : [];
+  });
+  const syncedCount =
+    query.success === "synced" && query.count && /^\d+$/.test(query.count)
+      ? Number(query.count)
+      : null;
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Sermons"
         title="Sermons"
-        description="Add audio and video messages that appear on the public Sermons page."
+        description="The public page lists the YouTube channel. Import a video when you want to add the speaker, series, or scripture."
         action={
           <Link href="/admin/sermons/new">
             <Button>New sermon</Button>
@@ -32,12 +46,19 @@ export default async function AdminSermonsPage({ searchParams }: AdminSermonsPag
         </p>
       ) : null}
 
-      <Card header={<p className="text-sm font-medium">Published sermons</p>}>
+      <YouTubeImportPanel
+        videos={youtube.ok ? youtube.videos : null}
+        saved={saved}
+        syncedCount={syncedCount}
+        error={query.error ?? null}
+      />
+
+      <Card header={<h2 className="text-sm font-medium text-foreground">Published sermons</h2>}>
         {sermons.length === 0 ? (
           <p className="text-sm text-muted-foreground">No sermons yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
+            <table aria-label="Published sermons" className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-2 py-2">Title</th>
@@ -49,7 +70,7 @@ export default async function AdminSermonsPage({ searchParams }: AdminSermonsPag
               <tbody>
                 {sermons.map((sermon) => (
                   <tr key={sermon.id} className="border-b border-border/60">
-                    <td className="px-2 py-3 font-medium">{sermon.title}</td>
+                    <td className="px-2 py-3 font-medium text-foreground">{sermon.title}</td>
                     <td className="px-2 py-3 text-muted-foreground">
                       {sermon.mediaType === SermonMediaType.AUDIO ? "Audio" : "Video"}
                     </td>

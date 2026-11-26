@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import { SermonMediaType } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { extractYouTubeVideoId } from "@/lib/sermons/media";
 
 export const runtime = "nodejs";
 
 function parseSermonBody(body: {
   title?: string;
   speaker?: string | null;
+  series?: string | null;
+  scripture?: string | null;
   date?: string;
   description?: string | null;
   mediaType?: string;
@@ -30,10 +33,13 @@ function parseSermonBody(body: {
   return {
     title,
     speaker: body.speaker?.trim() || null,
+    series: body.series?.trim() || null,
+    scripture: body.scripture?.trim() || null,
     date,
     description: body.description?.trim() || null,
     mediaType,
     mediaUrl,
+    youtubeVideoId: extractYouTubeVideoId(mediaUrl),
   };
 }
 

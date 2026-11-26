@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+  <link rel="self" href="https://www.youtube.com/feeds/videos.xml?channel_id=UCMQ7zUtOm8K4vs6t4nkFbdw"/>
+  <id>yt:channel:UCMQ7zUtOm8K4vs6t4nkFbdw</id>
+  <yt:channelId>UCMQ7zUtOm8K4vs6t4nkFbdw</yt:channelId>
+  <title>Tabernacle of David Assembly</title>
+  <published>2018-01-01T00:00:00+00:00</published>
+  <entry>
+    <id>yt:video:abcd1234efg</id>
+    <yt:videoId>abcd1234efg</yt:videoId>
+    <yt:channelId>UCMQ7zUtOm8K4vs6t4nkFbdw</yt:channelId>
+    <title>Faith &amp; Hope</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=abcd1234efg"/>
+    <published>2026-11-02T12:00:00+00:00</published>
+    <updated>2026-11-02T12:30:00+00:00</updated>
+    <media:group>
+      <media:title>Faith &amp; Hope</media:title>
+      <media:thumbnail url="https://i.ytimg.com/vi/abcd1234efg/hqdefault.jpg" width="480" height="360"/>
+      <media:description><![CDATA[Bishop Harrison Sakala teaches from Hebrews 11. A message of hope for the church in Lusaka & beyond.]]></media:description>
+    </media:group>
+  </entry>
+  <entry>
+    <id>yt:video:nope</id>
+    <title>Skip this broken entry</title>
+    <published>2026-11-01T12:00:00+00:00</published>
+  </entry>
+  <entry>
+    <id>yt:video:zxcv0987bnm</id>
+    <yt:videoId>zxcv0987bnm</yt:videoId>
+    <yt:channelId>UCMQ7zUtOm8K4vs6t4nkFbdw</yt:channelId>
+    <title>Sunday Service at TOD</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=zxcv0987bnm"/>
+    <published>2026-10-18T12:00:00+00:00</published>
+    <media:group>
+      <media:title>Sunday Service at TOD</media:title>
+      <media:thumbnail url="https://i.ytimg.com/vi/zxcv0987bnm/hqdefault.jpg" width="480" height="360"/>
+      <media:description>A shorter note about the service in Lusaka.</media:description>
+    </media:group>
+  </entry>
+  <entry>
+    <id>yt:video:qwer5678tyu</id>
+    <yt:videoId>qwer5678tyu</yt:videoId>
+    <yt:channelId>UCMQ7zUtOm8K4vs6t4nkFbdw</yt:channelId>
+    <title>God&#39;s Watchnight</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=qwer5678tyu"/>
+    <published>2026-01-05T12:00:00+00:00</published>
+    <media:group>
+      <media:title>God&#39;s Watchnight</media:title>
+      <media:thumbnail url="https://i.ytimg.com/vi/qwer5678tyu/hqdefault.jpg" width="480" height="360"/>
+      <media:description>A New Year service for the whole church family.</media:description>
+    </media:group>
+  </entry>
+</feed>
